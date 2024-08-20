@@ -3,6 +3,7 @@ import {
   getItems,
   UpdateUser,
   deleteUser,
+  createUser,
   changeUserRole,
 } from "../../api/User";
 import "./user.css";
@@ -19,9 +20,10 @@ const User = () => {
   const [formState, setFormState] = useState({
     id: "",
     userName: "",
-    phoneNumber: "",
     email: "",
-    Accesslevel: "User",
+    password: "", // New field
+    role: "User", // New field
+    phoneNumber: "",
   });
 
   useEffect(() => {
@@ -92,28 +94,42 @@ const User = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editingItem) {
       const updatedItem = {
         ...editingItem,
         ...formState,
-        Accesslevel: editingItem.Accesslevel, // Keep the original role
+        role: editingItem.role, // Keep the original role
       };
-      const updatedItems = items.map((item) =>
-        item.id === editingItem.id ? updatedItem : item
-      );
-      setItems(updatedItems);
-      handleUpdateUser(updatedItem);
+      try {
+        const updatedUser = await UpdateUser(updatedItem);
+        console.log("Utilisateur mis à jour avec succès :", updatedUser);
+        // Refetch items to get the updated list
+        const users = await getItems();
+        setItems(users);
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
+      }
     } else {
       const newItem = {
         ...formState,
         id: items.length > 0 ? items[items.length - 1].id + 1 : 1,
       };
-      setItems([...items, newItem]);
+      try {
+        const createdUser = await createUser(newItem);
+        console.log("Utilisateur créé avec succès :", createdUser);
+        // Refetch items to get the updated list
+        const users = await getItems();
+        setItems(users);
+      } catch (error) {
+        console.error("Erreur lors de la création de l'utilisateur :", error);
+        alert("Failed to create user");
+      }
     }
     setEditingItem(null);
     setFormVisible(false);
   };
+
 
   const handleCancel = () => {
     setEditingItem(null);
@@ -132,9 +148,10 @@ const User = () => {
     setFormState({
       id: "",
       userName: "",
-      phoneNumber: "",
       email: "",
-      Accesslevel: "User",
+      password: "", // Reset field
+      role: "User", // Reset field
+      phoneNumber: "",
     });
     setFormVisible(true);
   };
@@ -178,7 +195,7 @@ const User = () => {
               <td style={{ textAlign: "center" }}>
                 <select
                   className="list"
-                  value={item.Accesslevel} // Ensure the select reflects the current role
+                  value={item.role} // Ensure the select reflects the current role
                   onChange={(e) => handleChangeRole(item.email, e.target.value)}
                 >
                   <option value="User">User</option>
@@ -261,7 +278,7 @@ const User = () => {
                 <td>Phone Number</td>
                 <td>
                   <input
-                    type="number"
+                    type="text"
                     name="phoneNumber"
                     value={formState.phoneNumber}
                     onChange={handleChange}
@@ -279,22 +296,46 @@ const User = () => {
                   />
                 </td>
               </tr>
+              <tr>
+                <td>Password</td> {/* New input field */}
+                <td>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formState.password}
+                    onChange={handleChange}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Role</td> {/* New input field */}
+                <td>
+                  <select
+                    name="role"
+                    value={formState.role}
+                    onChange={handleChange}
+                  >
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </td>
+              </tr>
             </tbody>
           </table>
-          <button className="button-save" onClick={handleSave}>
-            <i className="fas fa-save"></i> Save
+          <button className="save-button" onClick={handleSave}>
+            Save
           </button>
-          <button className="button-cancel" onClick={handleCancel}>
-            <i className="fas fa-times"></i> Cancel
+          <button className="cancel-button" onClick={handleCancel}>
+            Cancel
           </button>
         </div>
       )}
 
-      <div className="add-item-form">
-        <button className="button-add" onClick={handleAddUser}>
-          <i className="fas fa-plus"></i> Add user
+      {!isFormVisible && (
+        <button className="add-user-button" onClick={handleAddUser}>
+          Add User
         </button>
-      </div>
+      )}
     </div>
   );
 };

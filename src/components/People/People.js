@@ -1,223 +1,258 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  getPeople,
+  updatePeople,
+  deletePeople,
+  createPeople,
+} from "../../api/people";
+import "./people.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import "./table.css";
-import Header from "../MyHeader/Header"; // Assuming you have a Header component
-
 
 const People = () => {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: "Item 1",
-      price: 45,
-      email: "item1@example.com",
-      totalAchat: 100,
-    },
-    {
-      id: 2,
-      name: "Item 2",
-      price: 25,
-      email: "item2@example.com",
-      totalAchat: 200,
-    },
-    {
-      id: 3,
-      name: "Item 3",
-      price: 15,
-      email: "item3@example.com",
-      totalAchat: 300,
-    },
-    {
-      id: 4,
-      name: "Item 4",
-      price: 35,
-      email: "item4@example.com",
-      totalAchat: 400,
-    },
-  ]);
+  const [items, setItems] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
+  const totalPages = Math.ceil(items.length / itemsPerPage);
 
   const [editingItem, setEditingItem] = useState(null);
-  const [newName, setNewName] = useState("");
-  const [newPrice, setNewPrice] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newTotalAchat, setNewTotalAchat] = useState("");
-  const [newId, setNewId] = useState("");
+  const [isFormVisible, setFormVisible] = useState(false);
+  const [formState, setFormState] = useState({
+    id: "",
+    name: "",
+    companyId: "",
+  });
 
-  const handleAddItem = () => {
-    const newItem = {
-      id: items.length + 1,
-      name: `Item ${items.length + 1}`,
-      price: 0,
-      email: `item${items.length + 1}@example.com`,
-      totalAchat: 0,
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const people = await getPeople();
+        setItems(people);
+      } catch (error) {
+        console.error("Error fetching people:", error);
+        alert("Failed to fetch people");
+      }
     };
-    setItems([...items, newItem]);
+
+    fetchItems();
+  }, []);
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
 
-  const handleDelete = (id) => {
-    const filteredItems = items.filter((item) => item.id !== id);
-    setItems(filteredItems);
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this person?")) {
+      try {
+        await deletePeople(id);
+        setItems(items.filter((item) => item.id !== id));
+        alert("Person deleted successfully");
+      } catch (error) {
+        console.error("Error deleting person:", error);
+        alert("Failed to delete person");
+      }
+    }
   };
 
   const handleEdit = (item) => {
     setEditingItem(item);
-    setNewId(item.id);
-    setNewName(item.name);
-    setNewPrice(item.price);
-    setNewEmail(item.email);
-    setNewTotalAchat(item.totalAchat);
+    setFormState({
+      id: item.id,
+      name: item.name,
+      companyId: item.companyId,
+    });
+    setFormVisible(true);
   };
 
-  const handleSave = () => {
-    const updatedItems = items.map((item) =>
-      item.id === editingItem.id
-        ? {
-            ...item,
-            id: newId,
-            name: newName,
-            price: newPrice,
-            email: newEmail,
-            totalAchat: newTotalAchat,
-          }
-        : item
-    );
-    setItems(updatedItems);
-    setEditingItem(null);
+  const handleSave = async () => {
+    if (formState.id) {
+      // Update existing person
+      try {
+        await updatePeople(formState);
+        setItems(await getPeople());
+        setFormVisible(false);
+        setFormState({
+          id: "",
+          name: "",
+          companyId: "",
+        });
+      } catch (error) {
+        console.error("Error updating person:", error);
+      }
+    } else {
+      // Create a new person
+      try {
+        await createPeople(formState);
+        setItems(await getPeople());
+        setFormVisible(false);
+        setFormState({
+          id: "",
+          name: "",
+          companyId: "",
+        });
+      } catch (error) {
+        console.error("Error creating person:", error);
+      }
+    }
   };
 
   const handleCancel = () => {
+    setFormVisible(false);
+    setFormState({
+      id: "",
+      name: "",
+      companyId: "",
+    });
+  };
+
+  const handleChange = (e) => {
+    setFormState({
+      ...formState,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleAddPerson = () => {
     setEditingItem(null);
+    setFormState({
+      id: "",
+      name: "",
+      companyId: "",
+    });
+    setFormVisible(true);
   };
 
   return (
-    <div className="page-content">
-      <Header />
-      <h1>People</h1>
-      <div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th style={{ textAlign: "center" }}>ID</th>
-              <th style={{ textAlign: "center" }}>Name</th>
-              <th style={{ textAlign: "center" }}>Price</th>
-              <th style={{ textAlign: "center" }}>Email</th>
-              <th style={{ textAlign: "center" }}>Total Achat</th>
-              <th style={{ textAlign: "center" }}>Operate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td style={{ textAlign: "center" }}>{item.id}</td>
-                <td style={{ textAlign: "center" }}>{item.name}</td>
-                <td style={{ textAlign: "center" }}>{item.price}</td>
-                <td style={{ textAlign: "center" }}>{item.email}</td>
-                <td style={{ textAlign: "center" }}>{item.totalAchat}</td>
-                <td style={{ textAlign: "center" }}>
-                  <button
-                    className="button-delete"
-                    onClick={() => handleDelete(item.id)}
-                  >
-                    <i className="fas fa-trash-alt"></i>
-                  </button>
-                  <button
-                    className="button-edit"
-                    onClick={() => handleEdit(item)}
-                  >
-                    <i className="fas fa-edit"></i>
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan="6" className="pagination-footer">
-                <div className="pagination-content">
-                  <button className="pagination-button">
-                    <i className="fas fa-chevron-left"></i> Previous
-                  </button>
-                  <button className="pagination-button">
-                    <i className="fas fa-chevron-right"></i> Next
-                  </button>
-                </div>
+    <div>
+      <table className="table">
+        <thead>
+          <tr>
+            <th style={{ textAlign: "center" }}>ID</th>
+            <th style={{ textAlign: "center" }}>Name</th>
+            <th style={{ textAlign: "center" }}>Company ID</th>
+            <th style={{ textAlign: "center" }}>Operate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentItems.map((item) => (
+            <tr key={item.id}>
+              <td style={{ textAlign: "center" }}>{item.id}</td>
+              <td style={{ textAlign: "center" }}>{item.name}</td>
+              <td style={{ textAlign: "center" }}>{item.companyId}</td>
+              <td style={{ textAlign: "center" }}>
+                <button
+                  className="button-delete"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  <i className="fas fa-trash-alt"></i>
+                </button>
+                <button
+                  className="button-edit"
+                  onClick={() => handleEdit(item)}
+                >
+                  <i className="fas fa-edit"></i>
+                </button>
               </td>
             </tr>
-          </tfoot>
-        </table>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan="4" className="pagination-footer">
+              <div className="pagination-content">
+                <button
+                  className="pagination-button"
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                >
+                  <i className="fas fa-chevron-left"></i> Previous
+                </button>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  className="pagination-button"
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  Next <i className="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
 
-        {editingItem && (
-          <div className="edit-table">
-            <h3>Edit Item</h3>
-            <table className="small-table">
-              <tbody>
+      {isFormVisible && (
+        <div className="edit-table">
+          <h3>{formState.id ? "Edit Person" : "Add Person"}</h3>
+          <table className="small-table">
+            <tbody>
+              {formState.id && (
                 <tr>
                   <td>ID</td>
                   <td>
                     <input
                       type="text"
-                      value={newId}
-                      onChange={(e) => setNewId(e.target.value)}
+                      name="id"
+                      value={formState.id}
+                      readOnly
                     />
                   </td>
                 </tr>
-                <tr>
-                  <td>Name</td>
-                  <td>
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>Price</td>
-                  <td>
-                    <input
-                      type="number"
-                      value={newPrice}
-                      onChange={(e) => setNewPrice(e.target.value)}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>Email</td>
-                  <td>
-                    <input
-                      type="email"
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>Total Achat</td>
-                  <td>
-                    <input
-                      type="number"
-                      value={newTotalAchat}
-                      onChange={(e) => setNewTotalAchat(e.target.value)}
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <button className="button-save" onClick={handleSave}>
-              <i className="fas fa-save"></i> Save
-            </button>
-            <button className="button-cancel" onClick={handleCancel}>
-              <i className="fas fa-times"></i> Cancel
-            </button>
-          </div>
-        )}
-
-        <div className="add-item-form">
-          <button className="button-add" onClick={handleAddItem}>
-            <i className="fas fa-plus"></i> Add new client
+              )}
+              <tr>
+                <td>Name</td>
+                <td>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formState.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Company ID</td>
+                <td>
+                  <input
+                    type="text"
+                    name="companyId"
+                    value={formState.companyId}
+                    onChange={handleChange}
+                    required
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <button className="save-button" onClick={handleSave}>
+            Save
+          </button>
+          <button className="cancel-button" onClick={handleCancel}>
+            Cancel
           </button>
         </div>
-      </div>
+      )}
+
+      {!isFormVisible && (
+        <div className="add-item-button-container">
+          <button
+            className="add-item-button"
+            onClick={handleAddPerson}
+          >
+            <i className="fas fa-plus"></i> Add Person
+          </button>
+        </div>
+      )}
     </div>
   );
 };

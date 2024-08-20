@@ -1,14 +1,28 @@
 import axiosInstance from "./axiosInstance";
 
+// Récupérer la liste des utilisateurs
 export const getItems = async () => {
   try {
-    const response = await axiosInstance.get("/admin/users"); // Remplacez "/items" par l'URL correcte de votre API
+    const response = await axiosInstance.get("/admin/users");
     return response.data;
   } catch (error) {
-    throw error.response.data || "Failed to fetch items";
+    throw error.response?.data || "Failed to fetch items";
   }
 };
 
+
+
+// Créer un nouvel utilisateur
+export const createUser = async (newUserData) => {
+  try {
+    const response = await axiosInstance.post("/admin/create-user", newUserData);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || "Failed to create user";
+  }
+};
+
+// Mettre à jour un utilisateur existant
 export const UpdateUser = async (updatedData) => {
   try {
     const response = await axiosInstance.put("/admin/update-user", updatedData);
@@ -18,6 +32,7 @@ export const UpdateUser = async (updatedData) => {
   }
 };
 
+// Supprimer un utilisateur
 export const deleteUser = async (id) => {
   try {
     const response = await axiosInstance.delete(`/admin/delete-user/${id}`);
@@ -27,6 +42,7 @@ export const deleteUser = async (id) => {
   }
 };
 
+// Modifier le rôle d'un utilisateur
 export const changeUserRole = async (email, newRole) => {
   try {
     const response = await axiosInstance.post("/admin/change-role", {
