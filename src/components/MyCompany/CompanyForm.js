@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getItems } from "../../api/User"; // Assuming you have an API function to get the user data
+import "./company.css";
+import './CompanyForm.css';
+
 
 const CompanyForm = ({
   formState,
@@ -8,6 +12,21 @@ const CompanyForm = ({
   editingCompany,
 }) => {
   const [errors, setErrors] = useState({});
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersData = await getItems();
+        setUsers(usersData); // Store the entire array of users
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        alert("Failed to fetch users");
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -20,7 +39,7 @@ const CompanyForm = ({
       newErrors.phone = "Phone must be a valid number.";
     }
 
-    if (!formState.userId) newErrors.userId = "Please fill out this field.";
+    if (!formState.userId) newErrors.userId = "Please select a user.";
 
     setErrors(newErrors);
 
@@ -100,21 +119,24 @@ const CompanyForm = ({
 
         <div className="mb-3">
           <label htmlFor="userId" className="form-label">
-            User ID <font color="red">*</font>
+            User <font color="red">*</font>
           </label>
-          <input
-            type="text"
-            className={`my-input ${errors.userId ? "is-invalid" : ""}`}
+          <select
+            className={`my-input ${errors.userId ? "is-invalid" : ""} custom-select`}
             id="userId"
             name="userId"
             value={formState.userId}
             onChange={handleChange}
-            placeholder="Enter user ID"
             required
-          />
-          {errors.userId && (
-            <div className="error-message">{errors.userId}</div>
-          )}
+          >
+            <option value="">Select a user</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.userName}
+              </option>
+            ))}
+          </select>
+          {errors.userId && <div className="error-message">{errors.userId}</div>}
         </div>
 
         <div className="my-buttons">

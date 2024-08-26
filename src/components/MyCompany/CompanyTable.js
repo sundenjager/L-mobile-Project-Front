@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { getItems } from "../../api/User"; // Assuming you have an API function to get the user data
 
 const CompanyTable = ({
   companies,
@@ -11,6 +12,24 @@ const CompanyTable = ({
   totalPages,
   handleAddCompany,
 }) => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersData = await getItems();
+        setUsers(usersData); // Store the entire array of users
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        alert("Failed to fetch users");
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const userMap = new Map(users.map(user => [user.id, user.userName]));
+
   return (
     <div>
       <table className="table">
@@ -20,7 +39,7 @@ const CompanyTable = ({
             <th style={{ textAlign: "center" }}>Name</th>
             <th style={{ textAlign: "center" }}>Address</th>
             <th style={{ textAlign: "center" }}>Phone</th>
-            <th style={{ textAlign: "center" }}>User ID</th>
+            <th style={{ textAlign: "center" }}>Technician</th>
             <th style={{ textAlign: "center" }}>Operate</th>
           </tr>
         </thead>
@@ -31,7 +50,9 @@ const CompanyTable = ({
               <td style={{ textAlign: "center" }}>{company.name}</td>
               <td style={{ textAlign: "center" }}>{company.address}</td>
               <td style={{ textAlign: "center" }}>{company.phone}</td>
-              <td style={{ textAlign: "center" }}>{company.userId}</td>
+              <td style={{ textAlign: "center" }}>
+                {userMap.get(company.userId) || 'Unknown'}
+              </td>
               <td style={{ textAlign: "center" }}>
                 <button
                   className="button-delete"

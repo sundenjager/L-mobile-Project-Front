@@ -5,12 +5,14 @@ import {
   deletePeople,
   createPeople,
 } from "../../api/people";
+import { getCompanies } from "../../api/company";
 import "./people.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Header from "../MyHeader/Header";
 
 const People = () => {
   const [items, setItems] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
   const totalPages = Math.ceil(items.length / itemsPerPage);
@@ -36,7 +38,18 @@ const People = () => {
       }
     };
 
+    const fetchCompanies = async () => {
+      try {
+        const companiesData = await getCompanies();
+        setCompanies(companiesData);
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+        alert("Failed to fetch companies");
+      }
+    };
+
     fetchItems();
+    fetchCompanies();
   }, []);
 
   const handlePreviousPage = () => {
@@ -70,7 +83,7 @@ const People = () => {
       id: item.id,
       name: item.name,
       companyId: item.companyId,
-      companyName: item.companyName || "", // Handle optional field
+      companyName: item.companyName || "",
     });
     setFormVisible(true);
   };
@@ -78,8 +91,7 @@ const People = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formState.name) newErrors.name = "Please fill out this field.";
-    if (!formState.companyId) newErrors.companyId = "Please fill out this field.";
-    if (!formState.companyName) newErrors.companyName = "Please fill out this field.";
+    if (!formState.companyId) newErrors.companyId = "Please select a company.";
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
@@ -136,6 +148,16 @@ const People = () => {
     setFormState({
       ...formState,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleCompanyChange = (e) => {
+    const selectedCompanyId = e.target.value;
+    const selectedCompany = companies.find(company => company.id === selectedCompanyId);
+    setFormState({
+      ...formState,
+      companyId: selectedCompanyId,
+      companyName: selectedCompany ? selectedCompany.name : "",
     });
   };
 
@@ -262,38 +284,31 @@ const People = () => {
               />
               {errors.name && <div className="error-message">{errors.name}</div>}
             </div>
-
             <div className="mb-3">
-              <label htmlFor="companyId" className="form-label">Company ID <font color="red">*</font></label>
-              <input
-                type="text"
-                className={`my-input ${errors.companyId ? "is-invalid" : ""}`}
+              <label htmlFor="companyId" className="form-label">Company <font color="red">*</font></label>
+              <select
                 id="companyId"
                 name="companyId"
+                className={`my-input ${errors.companyId ? "is-invalid" : ""}`}
                 value={formState.companyId}
-                onChange={handleChange}
-                placeholder="Enter Company ID"
+                onChange={handleCompanyChange}
                 required
-              />
+              >
+                <option value="">Select a company</option>
+                {companies.map(company => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
               {errors.companyId && <div className="error-message">{errors.companyId}</div>}
             </div>
 
-            <div className="mb-3">
-              <label htmlFor="companyName" className="form-label">
-                Company Name <font color="red">*</font>
-              </label>
-              <input
-                type="text"
-                className={`my-input ${errors.companyName ? "is-invalid" : ""}`}
-                id="companyName"
-                name="companyName"
-                value={formState.companyName}
-                onChange={handleChange}
-                placeholder="Enter Company Name"
-                required
-              />
-              {errors.companyName && <div className="error-message">{errors.companyName}</div>}
-            </div>
+            <input
+              type="hidden"
+              name="companyName"
+              value={formState.companyName}
+            />
 
             <div className="my-buttons">
               <button type="button" className="my-add-button" onClick={handleSave}>
@@ -313,3 +328,5 @@ const People = () => {
 };
 
 export default People;
+
+           

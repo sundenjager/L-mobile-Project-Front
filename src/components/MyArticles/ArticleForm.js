@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getItems } from "../../api/User"; // Assuming you have an API function to get the admin data
 import './ArticleForm.css';
 
@@ -11,6 +11,7 @@ const ArticleForm = ({
 }) => {
   const [errors, setErrors] = useState({});
   const [admins, setAdmins] = useState([]);
+  const inputRefs = useRef({});
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -29,20 +30,39 @@ const ArticleForm = ({
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formState.categorie) newErrors.categorie = "Please fill out this field.";
+    // Vérification du champ "Category"
+    if (!formState.categorie) {
+      newErrors.categorie = "Please fill out this field.";
+    }
 
-    if (!formState.price || formState.price <= 0) {
+    // Vérification du champ "Price"
+    const Price = parseInt(formState.price, 20);
+    if (!formState.price) {
+      newErrors.price = "Please fill out this field.";
+    } else if (isNaN(Price) || formState.price <= 0) {
       newErrors.price = "Price must be greater than 0.";
     }
 
+    // Vérification du champ "Quantity"
     const quantity = parseInt(formState.quantity, 10);
-    if (isNaN(quantity) || quantity < 0) {
-      newErrors.quantity = "Quantity is required and must be a non-negative integer.";
+    if (!formState.quantity) {
+      newErrors.quantity = "Please fill out this field.";
+    } else if (isNaN(quantity) || quantity <= 0) {
+      newErrors.quantity = "Quantity must be a positive number.";
     }
 
-    if (!formState.createdById) newErrors.createdById = "Please fill out this field.";
+    // Vérification du champ "Created By"
+    if (!formState.createdById) {
+      newErrors.createdById = "Please fill out this field.";
+    }
 
     setErrors(newErrors);
+
+    // Focus on the first invalid input
+    const firstErrorKey = Object.keys(newErrors)[0];
+    if (firstErrorKey && inputRefs.current[firstErrorKey]) {
+      inputRefs.current[firstErrorKey].focus();
+    }
 
     return Object.keys(newErrors).length === 0;
   };
@@ -65,59 +85,77 @@ const ArticleForm = ({
         )}
 
         <div className="mb-3">
-          <label htmlFor="categorie" className="form-label">Category <font color="red">*</font></label>
+          <label htmlFor="categorie" className="form-label">
+            Category <font color="red">*</font>
+          </label>
           <input
             type="text"
-            className={`my-input ${errors.categorie ? "is-invalid" : ""}`}
+            className={`form-control ${errors.categorie ? "is-invalid" : ""}`}
             id="categorie"
             name="categorie"
             value={formState.categorie}
             onChange={handleChange}
             placeholder="Enter category"
             required
+            ref={(el) => inputRefs.current.categorie = el}
           />
-          {errors.categorie && <div className="error-message">{errors.categorie}</div>}
+          {errors.categorie && (
+            <div className="error-message">{errors.categorie}</div>
+          )}
         </div>
 
         <div className="mb-3">
-          <label htmlFor="price" className="form-label">Price <font color="red">*</font></label>
+          <label htmlFor="price" className="form-label">
+            Price <font color="red">*</font>
+          </label>
           <input
             type="number"
-            className={`my-input ${errors.price ? "is-invalid" : ""}`}
+            className={`form-control ${errors.price ? "is-invalid" : ""}`}
             id="price"
             name="price"
             value={formState.price}
             onChange={handleChange}
             placeholder="Enter price"
             required
+            ref={(el) => inputRefs.current.price = el}
           />
-          {errors.price && <div className="error-message">{errors.price}</div>}
+          {errors.price && (
+            <div className="error-message">{errors.price}</div>
+          )}
         </div>
 
         <div className="mb-3">
-          <label htmlFor="quantity" className="form-label">Quantity <font color="red">*</font></label>
+          <label htmlFor="quantity" className="form-label">
+            Quantity <font color="red">*</font>
+          </label>
           <input
             type="number"
-            className={`my-input ${errors.quantity ? "is-invalid" : ""}`}
+            className={`form-control ${errors.quantity ? "is-invalid" : ""}`}
             id="quantity"
             name="quantity"
             value={formState.quantity}
             onChange={handleChange}
             placeholder="Enter quantity"
             required
+            ref={(el) => inputRefs.current.quantity = el}
           />
-          {errors.quantity && <div className="error-message">{errors.quantity}</div>}
+          {errors.quantity && (
+            <div className="error-message">{errors.quantity}</div>
+          )}
         </div>
 
         <div className="mb-3">
-          <label htmlFor="createdBy" className="form-label">Created By <font color="red">*</font></label>
+          <label htmlFor="createdBy" className="form-label">
+            Created By <font color="red">*</font>
+          </label>
           <select
-            className={`my-input ${errors.createdById ? "is-invalid" : ""} custom-select`}
+            className={`my-input ${errors.createdById ? "is-invalid" : ""}`}
             id="createdBy"
             name="createdById"
             value={formState.createdById}
             onChange={handleChange}
             required
+            ref={(el) => inputRefs.current.createdById = el}
           >
             <option value="">Select an admin</option>
             {admins.map((admin) => (
@@ -127,17 +165,24 @@ const ArticleForm = ({
             ))}
           </select>
 
-          {errors.createdById && <div className="error-message">{errors.createdById}</div>}
+          {errors.createdById && (
+            <div className="error-message">{errors.createdById}</div>
+          )}
         </div>
 
         <div className="my-buttons">
-          <button type="button" className="my-add-button" onClick={handleSubmit}>
+          <button type="button" className="btn btn-primary" onClick={handleSubmit}>
             <i className="fas fa-save"></i> Save
           </button>
-          <button type="button" className="my-add-button my-cancel-button" onClick={handleCancel}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleCancel}
+          >
             <i className="fas fa-times"></i> Cancel
           </button>
-          <br /><br />
+          <br />
+          <br />
         </div>
         <font color="red">*: Required field</font>
       </form>

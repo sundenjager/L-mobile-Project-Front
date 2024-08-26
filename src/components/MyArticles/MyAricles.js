@@ -15,8 +15,8 @@ const MyArticles = () => {
   const [articles, setArticles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isTableVisible, setTableVisible] = useState(true);
-  const [formErrorMessage, setFormErrorMessage] = useState(""); // State to store the form error message
-  const articlesPerPage = 2;
+  const [formErrorMessage, setFormErrorMessage] = useState(""); 
+  const articlesPerPage = 5; // Set itemsPerPage to 5
   const totalPages = Math.ceil(articles.length / articlesPerPage);
 
   const [editingArticle, setEditingArticle] = useState(null);
@@ -41,20 +41,23 @@ const MyArticles = () => {
     fetchArticles();
   }, []);
 
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
   const handlePreviousPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+    handlePageChange(currentPage - 1);
   };
 
   const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
+    handlePageChange(currentPage + 1);
   };
 
   const indexOfLastArticle = currentPage * articlesPerPage;
   const indexOfFirstArticle = indexOfLastArticle - articlesPerPage;
-  const currentArticles = articles.slice(
-    indexOfFirstArticle,
-    indexOfLastArticle
-  );
+  const currentArticles = articles.slice(indexOfFirstArticle, indexOfLastArticle);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this article?")) {
@@ -90,22 +93,22 @@ const MyArticles = () => {
   };
 
   const handleSave = async () => {
-    setFormErrorMessage(""); // Clear any previous error messages
-  
+    setFormErrorMessage(""); 
+
     const formattedArticle = {
-      id: editingArticle ? editingArticle.id : undefined, // Ensure id is included if editing
+      id: editingArticle ? editingArticle.id : undefined, 
       categorie: formState.categorie,
       price: formState.price,
-      quantite: formState.quantity, // Map quantity to quantite
+      quantite: formState.quantity, 
       createdById: formState.createdById,
     };
-  
+
     try {
       if (editingArticle) {
-        console.log("Updating Article:", formattedArticle); // Log data before update
+        console.log("Updating Article:", formattedArticle); 
         await handleUpdateArticle(formattedArticle);
       } else {
-        console.log("Adding Article:", formattedArticle); // Log data before add
+        console.log("Adding Article:", formattedArticle); 
         await addArticle(formattedArticle);
       }
       const articlesData = await getArticles();
@@ -114,10 +117,9 @@ const MyArticles = () => {
       setTableVisible(true);
     } catch (error) {
       console.error("Erreur lors de l'ajout ou de la mise à jour de l'article :", error);
-      setFormErrorMessage("Failed to add or update article"); // Set error message for adding/updating
+      setFormErrorMessage("Failed to add or update article");
     }
   };
-  
 
   const handleCancel = () => {
     setEditingArticle(null);
@@ -165,7 +167,7 @@ const MyArticles = () => {
           handleSave={handleSave}
           handleCancel={handleCancel}
           editingArticle={editingArticle}
-          formErrorMessage={formErrorMessage} // Pass the general form error message to the form
+          formErrorMessage={formErrorMessage} 
         />
       )}
     </div>

@@ -15,9 +15,8 @@ import UserForm from "./UserForm";
 const User = () => {
   const [items, setItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
-  const totalPages = Math.ceil(items.length / itemsPerPage);
-
+  const itemsPerPage = 5; // Set itemsPerPage to 5
+  
   const [editingItem, setEditingItem] = useState(null);
   const [isFormVisible, setFormVisible] = useState(false);
   const [formState, setFormState] = useState({
@@ -35,10 +34,7 @@ const User = () => {
         const users = await getItems();
         setItems(users);
       } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des utilisateurs :",
-          error
-        );
+        console.error("Erreur lors de la récupération des utilisateurs :", error);
         alert("Failed to fetch users");
       }
     };
@@ -46,12 +42,20 @@ const User = () => {
     fetchItems();
   }, []);
 
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
   const handlePreviousPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+    handlePageChange(currentPage - 1);
   };
 
   const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
+    handlePageChange(currentPage + 1);
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -66,10 +70,7 @@ const User = () => {
         setItems(filteredItems);
         alert("User deleted successfully");
       } catch (error) {
-        console.error(
-          "Erreur lors de la suppression de l'utilisateur :",
-          error
-        );
+        console.error("Erreur lors de la suppression de l'utilisateur :", error);
         alert("Failed to delete user");
       }
     }
@@ -103,10 +104,7 @@ const User = () => {
         const users = await getItems();
         setItems(users);
       } catch (error) {
-        console.error(
-          "Erreur lors de la mise à jour de l'utilisateur :",
-          error
-        );
+        console.error("Erreur lors de la mise à jour de l'utilisateur :", error);
       }
     } else {
       const newItem = {
@@ -158,10 +156,7 @@ const User = () => {
       const updatedUsers = await getItems();
       setItems(updatedUsers);
     } catch (error) {
-      console.error(
-        "Erreur lors du changement de rôle de l'utilisateur :",
-        error
-      );
+      console.error("Erreur lors du changement de rôle de l'utilisateur :", error);
       alert("Failed to change user role");
     }
   };
@@ -193,6 +188,7 @@ const User = () => {
           handleChangeRole={handleChangeRole}
           handlePreviousPage={handlePreviousPage}
           handleNextPage={handleNextPage}
+          handlePageChange={handlePageChange}
           currentPage={currentPage}
           totalPages={totalPages}
           handleAddUser={handleAddUser}
