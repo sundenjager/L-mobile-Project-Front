@@ -11,7 +11,13 @@ function ServiceOrder({ onChangePage }) {
       <div className="table">
         <div className="table-header">
           <h3>Service Order</h3>
-          <i className="fas fa-ellipsis-h" onClick={handleButtonClick}></i>
+          <a
+          href="#"
+          className="see-all text-primary"
+          onClick={handleButtonClick}
+        >
+          See all
+        </a>
         </div>
         <table>
           <thead>

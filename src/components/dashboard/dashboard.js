@@ -25,7 +25,6 @@ function Dashboard() {
 
   return (
     <section className="dashboard">
-      <h1>Dashboard - Nour </h1>
       <h2>Welcome to your dashboard</h2>
       <div className="stats">
         <div className="stat-box">
@@ -33,7 +32,7 @@ function Dashboard() {
             <b>12,361</b>
           </p>
           <span>
-            Service <br /> accomplished
+            Service <br /> complited 
           </span>
           <span className="stat-change">+14%</span>
         </div>
@@ -55,7 +54,7 @@ function Dashboard() {
           <p>
             <b>{numberOfUsers !== null ? numberOfUsers : "Loading..."}</b>
           </p>
-          <span>Users number</span>
+          <span>Number of Technicians </span>
           <span className="stat-change">+43%</span>
         </div>
       </div>

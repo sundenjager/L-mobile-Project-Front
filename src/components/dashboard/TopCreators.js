@@ -16,7 +16,6 @@ function TopCreators({ onChangePage }) {
           "/admin-dashboard/users-names"
         );
         setCreators(response.data);
-        console.log(creators);
       } catch (error) {
         console.error("There was an error fetching the creators data!", error);
       }
@@ -28,7 +27,7 @@ function TopCreators({ onChangePage }) {
   return (
     <section className="top-creators card p-4 mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Top Users</h2>
+        <h2>Top Technicians </h2>
 
         <a
           href="#"
