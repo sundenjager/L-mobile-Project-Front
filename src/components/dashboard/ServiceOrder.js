@@ -1,13 +1,17 @@
 import React from "react";
 import "./ServiceOrder.css";
 
-function ServiceOrder() {
+function ServiceOrder({ onChangePage }) {
+  const handleButtonClick = () => {
+    onChangePage("Service Orders");  // This will trigger the change to "Service Orders"
+  };
+
   return (
-    <section class="service-order">
-      <div class="table">
-        <div class="table-header">
+    <section className="service-order">
+      <div className="table">
+        <div className="table-header">
           <h3>Service Order</h3>
-          <i class="fas fa-ellipsis-h"></i>
+          <i className="fas fa-ellipsis-h" onClick={handleButtonClick}></i>
         </div>
         <table>
           <thead>
@@ -22,7 +26,7 @@ function ServiceOrder() {
             <tr>
               <td>Horizon UI PRO</td>
               <td>
-                <span class="status approved">Approved</span>
+                <span className="status approved">Approved</span>
               </td>
               <td>18 Apr 2022</td>
               <td>
@@ -32,7 +36,7 @@ function ServiceOrder() {
             <tr>
               <td>Horizon UI Free</td>
               <td>
-                <span class="status disabled">Disable</span>
+                <span className="status disabled">Disabled</span>
               </td>
               <td>18 Apr 2022</td>
               <td>
@@ -42,7 +46,7 @@ function ServiceOrder() {
             <tr>
               <td>Marketplace</td>
               <td>
-                <span class="status error">Error</span>
+                <span className="status error">Error</span>
               </td>
               <td>20 May 2021</td>
               <td>
@@ -52,7 +56,7 @@ function ServiceOrder() {
             <tr>
               <td>Weekly Updates</td>
               <td>
-                <span class="status approved">Approved</span>
+                <span className="status approved">Approved</span>
               </td>
               <td>12 Jul 2021</td>
               <td>
@@ -65,4 +69,5 @@ function ServiceOrder() {
     </section>
   );
 }
+
 export default ServiceOrder;

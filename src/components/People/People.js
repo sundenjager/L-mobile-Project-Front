@@ -7,6 +7,7 @@ import {
 } from "../../api/people";
 import "./people.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import Header from "../MyHeader/Header";
 
 const People = () => {
   const [items, setItems] = useState([]);
@@ -20,7 +21,9 @@ const People = () => {
     id: "",
     name: "",
     companyId: "",
+    companyName: "",
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -67,38 +70,52 @@ const People = () => {
       id: item.id,
       name: item.name,
       companyId: item.companyId,
+      companyName: item.companyName || "", // Handle optional field
     });
     setFormVisible(true);
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formState.name) newErrors.name = "Please fill out this field.";
+    if (!formState.companyId) newErrors.companyId = "Please fill out this field.";
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
-    if (formState.id) {
-      // Update existing person
-      try {
-        await updatePeople(formState);
-        setItems(await getPeople());
-        setFormVisible(false);
-        setFormState({
-          id: "",
-          name: "",
-          companyId: "",
-        });
-      } catch (error) {
-        console.error("Error updating person:", error);
-      }
-    } else {
-      // Create a new person
-      try {
-        await createPeople(formState);
-        setItems(await getPeople());
-        setFormVisible(false);
-        setFormState({
-          id: "",
-          name: "",
-          companyId: "",
-        });
-      } catch (error) {
-        console.error("Error creating person:", error);
+    if (validateForm()) {
+      if (formState.id) {
+        // Update existing person
+        try {
+          await updatePeople(formState);
+          setItems(await getPeople());
+          setFormVisible(false);
+          setFormState({
+            id: "",
+            name: "",
+            companyId: "",
+            companyName: "",
+          });
+        } catch (error) {
+          console.error("Error updating person:", error);
+        }
+      } else {
+        // Create a new person
+        try {
+          await createPeople(formState);
+          setItems(await getPeople());
+          setFormVisible(false);
+          setFormState({
+            id: "",
+            name: "",
+            companyId: "",
+            companyName: "",
+          });
+        } catch (error) {
+          console.error("Error creating person:", error);
+        }
       }
     }
   };
@@ -109,7 +126,9 @@ const People = () => {
       id: "",
       name: "",
       companyId: "",
+      companyName: "",
     });
+    setErrors({});
   };
 
   const handleChange = (e) => {
@@ -125,132 +144,162 @@ const People = () => {
       id: "",
       name: "",
       companyId: "",
+      companyName: "",
     });
     setFormVisible(true);
   };
 
   return (
-    <div>
-      <table className="table">
-        <thead>
-          <tr>
-            <th style={{ textAlign: "center" }}>ID</th>
-            <th style={{ textAlign: "center" }}>Name</th>
-            <th style={{ textAlign: "center" }}>Company ID</th>
-            <th style={{ textAlign: "center" }}>Operate</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((item) => (
-            <tr key={item.id}>
-              <td style={{ textAlign: "center" }}>{item.id}</td>
-              <td style={{ textAlign: "center" }}>{item.name}</td>
-              <td style={{ textAlign: "center" }}>{item.companyId}</td>
-              <td style={{ textAlign: "center" }}>
-                <button
-                  className="button-delete"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  <i className="fas fa-trash-alt"></i>
-                </button>
-                <button
-                  className="button-edit"
-                  onClick={() => handleEdit(item)}
-                >
-                  <i className="fas fa-edit"></i>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan="4" className="pagination-footer">
-              <div className="pagination-content">
-                <button
-                  className="pagination-button"
-                  onClick={handlePreviousPage}
-                  disabled={currentPage === 1}
-                >
-                  <i className="fas fa-chevron-left"></i> Previous
-                </button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  className="pagination-button"
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                >
-                  Next <i className="fas fa-chevron-right"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-
-      {isFormVisible && (
-        <div className="edit-table">
-          <h3>{formState.id ? "Edit Person" : "Add Person"}</h3>
-          <table className="small-table">
+    <div className="page-content">
+      <Header />
+      <h1>People</h1>
+      {!isFormVisible && (
+        <div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th style={{ textAlign: "center" }}>ID</th>
+                <th style={{ textAlign: "center" }}>Name</th>
+                <th style={{ textAlign: "center" }}>Company ID</th>
+                <th style={{ textAlign: "center" }}>Company Name</th>
+                <th style={{ textAlign: "center" }}>Operate</th>
+              </tr>
+            </thead>
             <tbody>
-              {formState.id && (
-                <tr>
-                  <td>ID</td>
-                  <td>
-                    <input
-                      type="text"
-                      name="id"
-                      value={formState.id}
-                      readOnly
-                    />
+              {currentItems.map((item) => (
+                <tr key={item.id}>
+                  <td style={{ textAlign: "center" }}>{item.id}</td>
+                  <td style={{ textAlign: "center" }}>{item.name}</td>
+                  <td style={{ textAlign: "center" }}>{item.companyId}</td>
+                  <td style={{ textAlign: "center" }}>{item.companyName}</td>
+                  <td style={{ textAlign: "center" }}>
+                    <button
+                      className="button-delete"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      <i className="fas fa-trash-alt"></i>
+                    </button>
+                    <button
+                      className="button-edit"
+                      onClick={() => handleEdit(item)}
+                    >
+                      <i className="fas fa-edit"></i>
+                    </button>
                   </td>
                 </tr>
-              )}
-              <tr>
-                <td>Name</td>
-                <td>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formState.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>Company ID</td>
-                <td>
-                  <input
-                    type="text"
-                    name="companyId"
-                    value={formState.companyId}
-                    onChange={handleChange}
-                    required
-                  />
-                </td>
-              </tr>
+              ))}
             </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="5" className="pagination-footer">
+                  <div className="pagination-content">
+                    <button
+                      className="pagination-button"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      <i className="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span>
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      className="pagination-button"
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next <i className="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
           </table>
-          <button className="save-button" onClick={handleSave}>
-            Save
-          </button>
-          <button className="cancel-button" onClick={handleCancel}>
-            Cancel
-          </button>
+
+          <div className="add-item-button-container">
+            <button className="add-button" onClick={handleAddPerson}>
+              +Add
+            </button>
+          </div>
         </div>
       )}
 
-      {!isFormVisible && (
-        <div className="add-item-button-container">
-          <button
-            className="add-item-button"
-            onClick={handleAddPerson}
-          >
-            <i className="fas fa-plus"></i> Add Person
-          </button>
+      {isFormVisible && (
+        <div className="form-container">
+          <h3>{formState.id ? "Edit Person" : "Add Person"}</h3>
+          <form className="mb-3" onSubmit={(e) => e.preventDefault()}>
+            {formState.id && (
+              <div className="mb-3">
+                <label htmlFor="id" className="form-label">ID</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="id"
+                  name="id"
+                  value={formState.id}
+                  readOnly
+                />
+              </div>
+            )}
+            <div className="mb-3">
+              <label htmlFor="name" className="form-label">Name <font color="red">*</font></label>
+              <input
+                type="text"
+                className={`my-input ${errors.name ? "is-invalid" : ""}`}
+                id="name"
+                name="name"
+                value={formState.name}
+                onChange={handleChange}
+                placeholder="Enter name"
+                required
+              />
+              {errors.name && <div className="error-message">{errors.name}</div>}
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="companyId" className="form-label">Company ID <font color="red">*</font></label>
+              <input
+                type="text"
+                className={`my-input ${errors.companyId ? "is-invalid" : ""}`}
+                id="companyId"
+                name="companyId"
+                value={formState.companyId}
+                onChange={handleChange}
+                placeholder="Enter Company ID"
+                required
+              />
+              {errors.companyId && <div className="error-message">{errors.companyId}</div>}
+            </div>
+
+            <div className="mb-3">
+  <label htmlFor="companyName" className="form-label">
+    Company Name <font color="red">*</font>
+  </label>
+  <input
+    type="text"
+    className={`my-input ${errors.companyName ? "is-invalid" : ""}`}
+    id="companyName"
+    name="companyName"
+    value={formState.companyName}
+    onChange={handleChange}
+    placeholder="Enter Company Name"
+    required
+  />
+  {errors.companyName && <div className="error-message">{errors.companyName}</div>}
+</div>
+
+
+            <div className="my-buttons">
+              <button type="button" className="my-add-button" onClick={handleSave}>
+                Save
+              </button>
+              <button type="button" className="my-add-button my-cancel-button" onClick={handleCancel}>
+                Cancel
+              </button>
+            </div>
+            <br/><br/>
+            <font color="red">*: Champ obligatoire</font>
+          </form>
         </div>
       )}
     </div>

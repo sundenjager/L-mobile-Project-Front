@@ -215,4 +215,32 @@ body {
   .small-table input[type="email"] {
     font-size: 14px;
   }
+
+  .add-button{
+    background-color: rgba(2, 161, 179, 0.878);
+    color: rgb(254, 254, 254);
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-left: 25px;
+    height: 60px;
+    width: 150px;
+    font-size: 25px;
+    font-weight: 600;
+    transition: background-color 0.2s ease 0.2s;
+  }
+  
+  .add-button:hover{
+    background-color: rgba(3, 83, 92, 0.878);
+  }
+
+  .cancel-button{
+    background-color: rgb(204, 13, 13);
+  }
+
+  .cancel-button:hover{
+    background-color: rgb(128, 3, 3);
+  }
   

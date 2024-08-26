@@ -73,20 +73,29 @@ const Login = () => {
     }
 
     try {
-      // Reset error state before login attempt
-      setErrors({});
-      setShowErrorPopup(false);
+    // Reset error state before login attempt
+    setErrors({});
+    setShowErrorPopup(false);
 
-      const data = await loginUser(formData);
-      console.log("User logged in:", data);
-      setShowPopup(true); // Show success popup on successful login
+    const data = await loginUser(formData);
 
-      // Redirect to another page on successful login
-      navigate("/dashboard"); // Replace '/dashboard' with your desired route
-    } catch (err) {
-      setErrors({ global: err.message });
-      setShowErrorPopup(true); // Show error popup on failed login
-    }
+    console.log("User logged in:", data);
+
+    // Store user data in sessionStorage or localStorage
+    // Example: Store in localStorage
+    localStorage.setItem("user", JSON.stringify(data));
+
+    // Example: Store in sessionStorage
+    // sessionStorage.setItem("user", JSON.stringify(data));
+
+    setShowPopup(true); // Show success popup on successful login
+
+    // Redirect to another page on successful login
+    navigate("/dashboard"); // Replace '/dashboard' with your desired route
+  } catch (err) {
+    setErrors({ global: err.message });
+    setShowErrorPopup(true); // Show error popup on failed login
+  }
   };
 
   return (

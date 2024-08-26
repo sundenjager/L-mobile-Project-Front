@@ -5,17 +5,21 @@ import {
   deleteCompany,
   createCompany,
 } from "../../api/company";
+import CompanyTable from "./CompanyTable";
+import CompanyForm from "./CompanyForm";
 import "./company.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import Header from "../MyHeader/Header";
 
 const Company = () => {
-  const [items, setItems] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isTableVisible, setTableVisible] = useState(true);
+  const [formErrorMessage, setFormErrorMessage] = useState(""); // State to store the form error message
   const itemsPerPage = 2;
-  const totalPages = Math.ceil(items.length / itemsPerPage);
+  const totalPages = Math.ceil(companies.length / itemsPerPage);
 
-  const [editingItem, setEditingItem] = useState(null);
-  const [isFormVisible, setFormVisible] = useState(false);
+  const [editingCompany, setEditingCompany] = useState(null);
   const [formState, setFormState] = useState({
     id: "",
     name: "",
@@ -25,17 +29,17 @@ const Company = () => {
   });
 
   useEffect(() => {
-    const fetchItems = async () => {
+    const fetchCompanies = async () => {
       try {
-        const companies = await getCompanies();
-        setItems(companies);
+        const companiesData = await getCompanies();
+        setCompanies(companiesData);
       } catch (error) {
         console.error("Error fetching companies:", error);
         alert("Failed to fetch companies");
       }
     };
 
-    fetchItems();
+    fetchCompanies();
   }, []);
 
   const handlePreviousPage = () => {
@@ -46,15 +50,19 @@ const Company = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+  const indexOfLastCompany = currentPage * itemsPerPage;
+  const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;
+  const currentCompanies = companies.slice(
+    indexOfFirstCompany,
+    indexOfLastCompany
+  );
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this company?")) {
       try {
         await deleteCompany(id);
-        setItems(items.filter((item) => item.id !== id));
+        const companiesData = await getCompanies();
+        setCompanies(companiesData);
         alert("Company deleted successfully");
       } catch (error) {
         console.error("Error deleting company:", error);
@@ -63,63 +71,56 @@ const Company = () => {
     }
   };
 
-  const handleEdit = (item) => {
-    setEditingItem(item);
-    setFormState({
-      id: item.id,
-      name: item.name,
-      address: item.address,
-      phone: item.phone,
-      userId: item.userId,
-    });
-    setFormVisible(true);
+  const handleEdit = (company) => {
+    setEditingCompany(company);
+    setFormState(company);
+    setTableVisible(false);
+  };
+
+  const handleUpdateCompany = async (updatedCompany) => {
+    try {
+      const updatedData = await updateCompany(updatedCompany);
+      const updatedCompanies = companies.map((company) =>
+        company.id === updatedCompany.id ? updatedData : company
+      );
+      setCompanies(updatedCompanies);
+    } catch (error) {
+      console.error("Error updating company:", error);
+      setFormErrorMessage("Failed to update company");
+    }
   };
 
   const handleSave = async () => {
-    if (formState.id) {
-      // Update existing company
-      try {
-        await updateCompany(formState);
-        setItems(await getCompanies());
-        setFormVisible(false);
-        setFormState({
-          id: "",
-          name: "",
-          address: "",
-          phone: "",
-          userId: "",
-        });
-      } catch (error) {
-        console.error("Error updating company:", error);
+    setFormErrorMessage(""); // Clear any previous error messages
+
+    try {
+      if (editingCompany) {
+        const updatedCompany = {
+          ...editingCompany,
+          ...formState,
+        };
+        await handleUpdateCompany(updatedCompany);
+        const companiesData = await getCompanies();
+        setCompanies(companiesData);
+      } else {
+        const newCompany = {
+          ...formState,
+        };
+        await createCompany(newCompany);
+        const companiesData = await getCompanies();
+        setCompanies(companiesData);
       }
-    } else {
-      // Create a new company
-      try {
-        await createCompany(formState);
-        setItems(await getCompanies());
-        setFormVisible(false);
-        setFormState({
-          id: "",
-          name: "",
-          address: "",
-          phone: "",
-          userId: "",
-        });
-      } catch (error) {
-        console.error("Error creating company:", error);
-      }
+      setEditingCompany(null);
+      setTableVisible(true);
+    } catch (error) {
+      console.error("Error adding or updating company:", error);
+      setFormErrorMessage("Failed to add company"); // Set error message for adding
     }
   };
 
   const handleCancel = () => {
-    setFormVisible(false);
-    setFormState({
-      id: "",
-      name: "",
-      address: "",
-      phone: "",
-      userId: "",
-    });
+    setEditingCompany(null);
+    setTableVisible(true);
   };
 
   const handleChange = (e) => {
@@ -130,7 +131,7 @@ const Company = () => {
   };
 
   const handleAddCompany = () => {
-    setEditingItem(null);
+    setEditingCompany(null);
     setFormState({
       id: "",
       name: "",
@@ -138,159 +139,34 @@ const Company = () => {
       phone: "",
       userId: "",
     });
-    setFormVisible(true);
+    setTableVisible(false);
   };
 
   return (
-    <div>
-      <table className="table">
-        <thead>
-          <tr>
-            <th style={{ textAlign: "center" }}>ID</th>
-            <th style={{ textAlign: "center" }}>Name</th>
-            <th style={{ textAlign: "center" }}>Address</th>
-            <th style={{ textAlign: "center" }}>Phone</th>
-            <th style={{ textAlign: "center" }}>User ID</th>
-            <th style={{ textAlign: "center" }}>Operate</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((item) => (
-            <tr key={item.id}>
-              <td style={{ textAlign: "center" }}>{item.id}</td>
-              <td style={{ textAlign: "center" }}>{item.name}</td>
-              <td style={{ textAlign: "center" }}>{item.address}</td>
-              <td style={{ textAlign: "center" }}>{item.phone}</td>
-              <td style={{ textAlign: "center" }}>{item.userId}</td>
-              <td style={{ textAlign: "center" }}>
-                <button
-                  className="button-delete"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  <i className="fas fa-trash-alt"></i>
-                </button>
-                <button
-                  className="button-edit"
-                  onClick={() => handleEdit(item)}
-                >
-                  <i className="fas fa-edit"></i>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan="6" className="pagination-footer">
-              <div className="pagination-content">
-                <button
-                  className="pagination-button"
-                  onClick={handlePreviousPage}
-                  disabled={currentPage === 1}
-                >
-                  <i className="fas fa-chevron-left"></i> Previous
-                </button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  className="pagination-button"
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                >
-                  Next <i className="fas fa-chevron-right"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-
-      {isFormVisible && (
-        <div className="edit-table">
-          <h3>{formState.id ? "Edit Company" : "Add Company"}</h3>
-          <table className="small-table">
-            <tbody>
-              {formState.id && (
-                <tr>
-                  <td>ID</td>
-                  <td>
-                    <input
-                      type="text"
-                      name="id"
-                      value={formState.id}
-                      readOnly
-                    />
-                  </td>
-                </tr>
-              )}
-              <tr>
-                <td>Name</td>
-                <td>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formState.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>Address</td>
-                <td>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formState.address}
-                    onChange={handleChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>Phone</td>
-                <td>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={formState.phone}
-                    onChange={handleChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>User ID</td>
-                <td>
-                  <input
-                    type="text"
-                    name="userId"
-                    value={formState.userId}
-                    onChange={handleChange}
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <button className="save-button" onClick={handleSave}>
-            Save
-          </button>
-          <button className="cancel-button" onClick={handleCancel}>
-            Cancel
-          </button>
-        </div>
-      )}
-
-      {!isFormVisible && (
-        <div className="add-item-button-container">
-          <button
-            className="add-item-button"
-            onClick={handleAddCompany}
-          >
-            <i className="fas fa-plus"></i> Add Company
-          </button>
-        </div>
+    <div className="page-content">
+      <Header />
+      <h1>Companies</h1>
+      {isTableVisible ? (
+        <CompanyTable
+          companies={companies}
+          currentCompanies={currentCompanies}
+          handleDelete={handleDelete}
+          handleEdit={handleEdit}
+          handlePreviousPage={handlePreviousPage}
+          handleNextPage={handleNextPage}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          handleAddCompany={handleAddCompany}
+        />
+      ) : (
+        <CompanyForm
+          formState={formState}
+          handleChange={handleChange}
+          handleSave={handleSave}
+          handleCancel={handleCancel}
+          editingCompany={editingCompany}
+          formErrorMessage={formErrorMessage} // Pass the general form error message to the form
+        />
       )}
     </div>
   );

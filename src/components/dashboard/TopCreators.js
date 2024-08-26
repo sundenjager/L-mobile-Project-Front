@@ -3,7 +3,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./TopCreators.css";
 import axiosInstance from "../../api/axiosInstance";
 
-function TopCreators() {
+function TopCreators({ onChangePage }) {
+  const handleButtonClick = () => {
+    onChangePage("Users"); // Change to "ServiceOrders" page
+  };
+
   const [creators, setCreators] = useState([]);
   useEffect(() => {
     const fetchCreators = async () => {
@@ -26,7 +30,11 @@ function TopCreators() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Top Users</h2>
 
-        <a href="#" className="see-all text-primary">
+        <a
+          href="#"
+          className="see-all text-primary"
+          onClick={handleButtonClick}
+        >
           See all
         </a>
       </div>

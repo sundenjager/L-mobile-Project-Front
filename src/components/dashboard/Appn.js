@@ -5,7 +5,7 @@ import ServiceOrder from "./ServiceOrder";
 import TopCreators from "./TopCreators";
 import "./Appn.css";
 
-function Appn() {
+function Appn({ onChangePage }) {
   return (
     <div className="container-fluid">
       <div className="row">
@@ -14,10 +14,10 @@ function Appn() {
           <Dashboard />
           <div className="row">
             <div className="col-md-6">
-              <ServiceOrder />
+              <ServiceOrder onChangePage={onChangePage} />
             </div>
             <div className="col-md-6">
-              <TopCreators />
+              <TopCreators onChangePage={onChangePage} />
             </div>
           </div>
         </main>

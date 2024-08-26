@@ -13,6 +13,7 @@ import "./App.css";
 
 const App = () => {
   return (
+    <div className="app-container">
     <Router>
       <Routes>
         <Route path="/register" element={<Register />} />
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="*" element={<Navigate to="/register" />} />
       </Routes>
     </Router>
+    </div>
   );
 };
 

@@ -10,11 +10,13 @@ export const getCompanies = async () => {
   }
 };
 
-// Créer une nouvelle entreprise
 export const createCompany = async (newCompanyData) => {
   try {
-    console.log(newCompanyData);
-    const response = await axiosInstance.post("/Company", newCompanyData);
+    // Remove the 'id' attribute from newCompanyData
+    const { id, ...dataWithoutId } = newCompanyData;
+
+    console.log("Data without ID:", dataWithoutId);
+    const response = await axiosInstance.post("/Company", dataWithoutId);
     return response.data;
   } catch (error) {
     throw error.response?.data || "Failed to create company";

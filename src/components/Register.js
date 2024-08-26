@@ -46,6 +46,10 @@ const Register = () => {
             <form onSubmit={handleSubmit}>
               {/* Username input */}
               <div className="form-outline mb-4">
+                
+              <label className="form-label" htmlFor="form3Example1">
+                  Username
+                </label>
                 <input
                   type="text"
                   id="form3Example1"
@@ -55,13 +59,14 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 />
-                <label className="form-label" htmlFor="form3Example1">
-                  Username
-                </label>
+               
               </div>
 
               {/* Email input */}
               <div className="form-outline mb-4">
+              <label className="form-label" htmlFor="form3Example2">
+                  Email address
+                </label>
                 <input
                   type="email"
                   id="form3Example2"
@@ -71,13 +76,14 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 />
-                <label className="form-label" htmlFor="form3Example2">
-                  Email address
-                </label>
+                
               </div>
 
               {/* Phone Number input */}
               <div className="form-outline mb-4">
+              <label className="form-label" htmlFor="form3Example3">
+                  Phone Number
+                </label>
                 <input
                   type="text"
                   id="form3Example3"
@@ -87,13 +93,14 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 />
-                <label className="form-label" htmlFor="form3Example3">
-                  Phone Number
-                </label>
+               
               </div>
 
               {/* Password input */}
               <div className="form-outline mb-3">
+              <label className="form-label" htmlFor="form3Example4">
+                  Password
+                </label>
                 <input
                   type="password"
                   id="form3Example4"
@@ -103,9 +110,7 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 />
-                <label className="form-label" htmlFor="form3Example4">
-                  Password
-                </label>
+               
               </div>
 
               {error && <p className="text-danger">{error}</p>}
