@@ -79,6 +79,7 @@ const People = () => {
     const newErrors = {};
     if (!formState.name) newErrors.name = "Please fill out this field.";
     if (!formState.companyId) newErrors.companyId = "Please fill out this field.";
+    if (!formState.companyName) newErrors.companyName = "Please fill out this field.";
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
@@ -227,6 +228,12 @@ const People = () => {
       {isFormVisible && (
         <div className="form-container">
           <h3>{formState.id ? "Edit Person" : "Add Person"}</h3>
+          {/* Message d'alerte pour les erreurs */}
+          {Object.keys(errors).length > 0 && (
+            <div className="alert alert-danger" role="alert">
+              Please correct the errors below and try again!
+            </div>
+          )}
           <form className="mb-3" onSubmit={(e) => e.preventDefault()}>
             {formState.id && (
               <div className="mb-3">
@@ -272,22 +279,21 @@ const People = () => {
             </div>
 
             <div className="mb-3">
-  <label htmlFor="companyName" className="form-label">
-    Company Name <font color="red">*</font>
-  </label>
-  <input
-    type="text"
-    className={`my-input ${errors.companyName ? "is-invalid" : ""}`}
-    id="companyName"
-    name="companyName"
-    value={formState.companyName}
-    onChange={handleChange}
-    placeholder="Enter Company Name"
-    required
-  />
-  {errors.companyName && <div className="error-message">{errors.companyName}</div>}
-</div>
-
+              <label htmlFor="companyName" className="form-label">
+                Company Name <font color="red">*</font>
+              </label>
+              <input
+                type="text"
+                className={`my-input ${errors.companyName ? "is-invalid" : ""}`}
+                id="companyName"
+                name="companyName"
+                value={formState.companyName}
+                onChange={handleChange}
+                placeholder="Enter Company Name"
+                required
+              />
+              {errors.companyName && <div className="error-message">{errors.companyName}</div>}
+            </div>
 
             <div className="my-buttons">
               <button type="button" className="my-add-button" onClick={handleSave}>
@@ -298,7 +304,7 @@ const People = () => {
               </button>
             </div>
             <br/><br/>
-            <font color="red">*: Champ obligatoire</font>
+            <font color="red">*: Required field</font>
           </form>
         </div>
       )}

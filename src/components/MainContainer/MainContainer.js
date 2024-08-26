@@ -1,5 +1,5 @@
 import React from "react";
-import Articles from "../MyArticles/MyAricles.js";
+import Articles from "../MyArticles/MyAricles";
 import Appn from "../dashboard/Appn";
 import People from "../People/People";
 import User from "../MyUser/User.js";

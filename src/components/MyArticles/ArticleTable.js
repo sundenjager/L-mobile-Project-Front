@@ -1,5 +1,6 @@
 // src/components/Article/ArticleTable.js
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { getItems } from "../../api/User"; // Assuming you have an API function to get the admin data
 
 const ArticleTable = ({
   articles,
@@ -11,7 +12,26 @@ const ArticleTable = ({
   currentPage,
   totalPages,
   handleAddArticle,
+   // Recevez les utilisateurs ici
 }) => {
+  // Créez une map des IDs d'utilisateurs aux noms d'utilisateurs
+  const [admins, setAdmins] = useState([]);
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      try {
+        const adminsData = await getItems();
+        setAdmins(adminsData); // Store the entire array of admins
+      } catch (error) {
+        console.error("Erreur lors de la récupération des administrateurs :", error);
+        alert("Failed to fetch administrators");
+      }
+    };
+
+    fetchAdmins();
+  }, []);
+  console.log("test",admins)
+  const userMap = new Map(admins.map(user => [user.id, user.userName]));
+  console.log(articles)
   return (
     <div>
       <table className="table">
@@ -32,7 +52,9 @@ const ArticleTable = ({
               <td style={{ textAlign: "center" }}>{article.categorie}</td>
               <td style={{ textAlign: "center" }}>{article.price}</td>
               <td style={{ textAlign: "center" }}>{article.quantite}</td>
-              <td style={{ textAlign: "center" }}>{article.createdById}</td>
+              <td style={{ textAlign: "center" }}>
+                {userMap.get(article.createdById) || 'Unknown'}
+              </td>
               <td style={{ textAlign: "center" }}>
                 <button
                   className="button-delete"

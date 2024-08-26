@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./Sidebar.css";
 import LogoutButton from "./logout";
+import Myheaders from "./Myheaders";
 
 const Sidebar = ({ onSelect, onToggle }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -21,14 +22,7 @@ const Sidebar = ({ onSelect, onToggle }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="logo">
-        <img
-          src="L-mobile-logo-transparent.png"
-          alt="Logo"
-          style={{ width: '150px', height: 'auto' }}
-        />
-      </div>
-      
+      <Myheaders />
       <ul>
         <li onClick={() => onSelect("Dashboard")}>
           <i className="fas fa-home"></i> <span className="text">Dashboard</span>
@@ -47,7 +41,7 @@ const Sidebar = ({ onSelect, onToggle }) => {
         </li>  
         <li onClick={() => onSelect("Service Orders")}>
           <i className="fas fa-tasks"></i> <span className="text">Service Orders</span>
-        </li>  
+        </li> 
       </ul>
       <LogoutButton className="signout-btn"/>
     </aside>

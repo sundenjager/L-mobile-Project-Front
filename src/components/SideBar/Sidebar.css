@@ -1,12 +1,6 @@
 :root {
-  --sidebar-collapsed-width: 60px; /* Width when collapsed */
-  --sidebar-expanded-width: 200px; /* Width when expanded */
-}
-
-.app-container {
-  padding: 30px;
-  width: 100vw; /* Ensure full-width layout */
-  height: 100vh; /* Ensure full-height layout */
+  --sidebar-collapsed-width: 60px;
+  --sidebar-expanded-width: 200px;
 }
 
 .sidebar {
@@ -27,25 +21,14 @@
   width: var(--sidebar-expanded-width);
 }
 
-.logo {
-  display: flex;
-  justify-content: center;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #21cdec;
-  text-align: center;
+.logo-container {
   opacity: 0;
   height: 0;
   transition: opacity 0.5s ease, height 0.5s ease;
 }
 
-.sidebar.expanded .logo {
+.sidebar.expanded .logo-container {
   opacity: 1;
-  height: auto;
-}
-
-.logo img {
-  max-width: 80%;
   height: auto;
 }
 
@@ -103,10 +86,8 @@
 }
 
 .my-content-area {
-
-
-  width: 100vw; /* Ensure full-width layout */
-  height: 100vh; /* Ensure full-height layout */
+  width: 100vw;
+  height: 100vh;
   flex: 1;
   transition: width 0.5s ease, transform 0.5s ease;
   width: calc(100% - var(--sidebar-collapsed-width));

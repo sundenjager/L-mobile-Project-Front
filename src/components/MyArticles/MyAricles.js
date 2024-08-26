@@ -91,31 +91,33 @@ const MyArticles = () => {
 
   const handleSave = async () => {
     setFormErrorMessage(""); // Clear any previous error messages
-
+  
+    const formattedArticle = {
+      id: editingArticle ? editingArticle.id : undefined, // Ensure id is included if editing
+      categorie: formState.categorie,
+      price: formState.price,
+      quantite: formState.quantity, // Map quantity to quantite
+      createdById: formState.createdById,
+    };
+  
     try {
       if (editingArticle) {
-        const updatedArticle = {
-          ...editingArticle,
-          ...formState,
-        };
-        await handleUpdateArticle(updatedArticle);
-        const articlesData = await getArticles();
-        setArticles(articlesData);
+        console.log("Updating Article:", formattedArticle); // Log data before update
+        await handleUpdateArticle(formattedArticle);
       } else {
-        const newArticle = {
-          ...formState,
-        };
-        await addArticle(newArticle);
-        const articlesData = await getArticles();
-        setArticles(articlesData);
+        console.log("Adding Article:", formattedArticle); // Log data before add
+        await addArticle(formattedArticle);
       }
+      const articlesData = await getArticles();
+      setArticles(articlesData);
       setEditingArticle(null);
       setTableVisible(true);
     } catch (error) {
       console.error("Erreur lors de l'ajout ou de la mise à jour de l'article :", error);
-      setFormErrorMessage("Failed to add article"); // Set error message for adding
+      setFormErrorMessage("Failed to add or update article"); // Set error message for adding/updating
     }
   };
+  
 
   const handleCancel = () => {
     setEditingArticle(null);
