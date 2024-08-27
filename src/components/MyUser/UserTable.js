@@ -1,5 +1,6 @@
 import React from "react";
 import "./table.css";
+import Add from "../Myadd/add";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const UserTable = ({
@@ -100,11 +101,7 @@ const UserTable = ({
         </tfoot>
       </table>
 
-      <div className="add-item-button-container">
-        <button className="add-button" onClick={handleAddUser}>
-          +Add
-        </button>
-      </div>
+      <Add />
     </div>
   );
 };

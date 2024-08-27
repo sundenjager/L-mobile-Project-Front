@@ -11,7 +11,6 @@ const ServiceOrderTable = ({
   currentPage,
   totalPages,
   handleAddServiceOrder,
-  handleViewDispatcherDetails,
   handleViewAllDispatchers,
 }) => {
   return (
@@ -93,7 +92,7 @@ const ServiceOrderTable = ({
 
       <div className="add-item-form">
         <button className="add-button" onClick={handleAddServiceOrder}>
-          + Add Service Order
+          + Add
         </button>
       </div>
     </div>
