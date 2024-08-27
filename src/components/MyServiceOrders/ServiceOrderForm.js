@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getCompanies } from "../../api/company";
+import { getArticles } from "../../api/ArticleService";
+import { getItems as getUsers } from "../../api/User";
 
 const ServiceOrderForm = ({
   formState,
@@ -8,21 +11,53 @@ const ServiceOrderForm = ({
   editingOrder,
 }) => {
   const [errors, setErrors] = useState({});
+  const [companies, setCompanies] = useState([]);
+  const [articles, setArticles] = useState([]);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const companyData = await getCompanies();
+        setCompanies(companyData);
+        const articleData = await getArticles();
+        setArticles(articleData);
+        const userData = await getUsers();
+        setUsers(userData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!editingOrder) {
+      const today = new Date().toISOString().split('T')[0];
+      handleChange({ target: { name: 'createdAt', value: today } });
+      handleChange({ target: { name: 'updatedAt', value: today } });
+    }
+  }, [editingOrder, handleChange]);
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formState.companyId) newErrors.companyId = "Please fill out this field.";
-    if (!formState.userId) newErrors.userId = "Please fill out this field.";
-    if (!formState.articlesId) newErrors.articlesId = "Please fill out this field.";
-    if (!formState.status) newErrors.status = "Please select a status.";
-    if (!formState.progress) newErrors.progress = "Please select a progress.";
-    if (!formState.createdAt) newErrors.createdAt = "Please select a creation date.";
-    if (!formState.updatedAt) newErrors.updatedAt = "Please select an update date.";
+    if (!formState.companyId) newErrors.companyId = "Please select a company.";
+    if (!formState.userId) newErrors.userId = "Please select a user.";
+    if (!formState.articlesId || formState.articlesId.length === 0) newErrors.articlesId = "Please provide at least one article ID.";
+    if (!formState.status) newErrors.status = "Status is required.";
+    if (!formState.progress) newErrors.progress = "Progress is required.";
 
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleArticleChange = (e) => {
+    const { value } = e.target;
+    const articleIds = value.split(',').map(id => id.trim()).filter(id => id !== "");
+    handleChange({ target: { name: 'articlesId', value: articleIds } });
   };
 
   const handleSubmit = () => {
@@ -37,114 +72,79 @@ const ServiceOrderForm = ({
         <h3>{editingOrder ? "Edit Service Order" : "Add Service Order"}</h3>
 
         <div className="mb-3">
-          <label htmlFor="companyId" className="form-label">Company ID</label>
-          <input
-            type="text"
+          <label htmlFor="companyId" className="form-label">Company</label>
+          <select
             className={`my-input ${errors.companyId ? "is-invalid" : ""}`}
             id="companyId"
             name="companyId"
-            value={formState.companyId}
+            value={formState.companyId || ""}
             onChange={handleChange}
-            placeholder="Enter company ID"
             required
-          />
+          >
+            <option value="">Select company</option>
+            {companies.map(company => (
+              <option key={company.id} value={company.id}>{company.name}</option>
+            ))}
+          </select>
           {errors.companyId && <div className="error-message">{errors.companyId}</div>}
         </div>
 
         <div className="mb-3">
-          <label htmlFor="userId" className="form-label">User ID</label>
-          <input
-            type="text"
+          <label htmlFor="userId" className="form-label">Created by</label>
+          <select
             className={`my-input ${errors.userId ? "is-invalid" : ""}`}
             id="userId"
             name="userId"
-            value={formState.userId}
+            value={formState.userId || ""}
             onChange={handleChange}
-            placeholder="Enter user ID"
             required
-          />
+          >
+            <option value="">Select user</option>
+            {users.map(user => (
+              <option key={user.id} value={user.id}>{user.userName}</option>
+            ))}
+          </select>
           {errors.userId && <div className="error-message">{errors.userId}</div>}
         </div>
 
         <div className="mb-3">
-          <label htmlFor="articlesId" className="form-label">Articles ID</label>
+          <label htmlFor="articlesId" className="form-label">Article IDs (comma-separated)</label>
           <input
             type="text"
-            className={`my-input ${errors.articlesId ? "is-invalid" : ""}`}
             id="articlesId"
             name="articlesId"
-            value={formState.articlesId}
-            onChange={handleChange}
-            placeholder="Enter articles ID"
+            className={`my-input ${errors.articlesId ? "is-invalid" : ""}`}
+            value={formState.articlesId ? formState.articlesId.join(', ') : ''}
+            onChange={handleArticleChange}
+            placeholder="Enter article IDs, separated by commas"
             required
           />
           {errors.articlesId && <div className="error-message">{errors.articlesId}</div>}
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="status" className="form-label">Status</label>
-          <select
-            className={`my-input ${errors.status ? "is-invalid" : ""}`}
-            id="status"
-            name="status"
-            value={formState.status}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select status</option>
-            <option value="New">New</option>
-            <option value="ReadyForScheduling">Ready For Scheduling</option>
-            <option value="Scheduled">Scheduled</option>
-            <option value="InProgress">In Progress</option>
-            <option value="TechnicallyCompleted">Technically Completed</option>
-            <option value="ReadyForInvoice">Ready For Invoice</option>
-            <option value="Invoiced">Invoiced</option>
-            <option value="Completed">Completed</option>
-          </select>
-          {errors.status && <div className="error-message">{errors.status}</div>}
-        </div>
+        <input
+          type="hidden"
+          name="status"
+          value="New"
+        />
+       
+        <input
+          type="hidden"
+          name="progress"
+          value="0"
+        />
 
-        <div className="mb-3">
-          <input
-            type="hidden"
-            className={`my-input ${errors.progress ? "is-invalid" : ""}`}
-            id="progress"
-            name="progress"
-            value="0"
-            onChange={handleChange}
-            placeholder="Enter progress percentage"
-            required
-          />
-          {errors.progress && <div className="error-message">{errors.progress}</div>}
-        </div>
+        <input
+          type="hidden"
+          name="createdAt"
+          value={formState.createdAt || new Date().toISOString().split('T')[0]}
+        />
 
-        <div className="mb-3">
-          <label htmlFor="createdAt" className="form-label">Created At</label>
-          <input
-            type="date"
-            className={`my-input ${errors.createdAt ? "is-invalid" : ""}`}
-            id="createdAt"
-            name="createdAt"
-            value={formState.createdAt}
-            onChange={handleChange}
-            required
-          />
-          {errors.createdAt && <div className="error-message">{errors.createdAt}</div>}
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="updatedAt" className="form-label">Updated At</label>
-          <input
-            type="date"
-            className={`my-input ${errors.updatedAt ? "is-invalid" : ""}`}
-            id="updatedAt"
-            name="updatedAt"
-            value={formState.updatedAt}
-            onChange={handleChange}
-            required
-          />
-          {errors.updatedAt && <div className="error-message">{errors.updatedAt}</div>}
-        </div>
+        <input
+          type="hidden"
+          name="updatedAt"
+          value={formState.updatedAt || new Date().toISOString().split('T')[0]}
+        />
 
         <div className="my-buttons">
           <button type="button" className="my-add-button" onClick={handleSubmit}>
