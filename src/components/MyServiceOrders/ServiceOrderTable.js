@@ -1,5 +1,7 @@
 // src/components/ServiceOrder/ServiceOrderTable.js
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getCompanies } from "../../api/company";
+import { getItems } from "../../api/User";
 
 const ServiceOrderTable = ({
   serviceOrders,
@@ -11,16 +13,45 @@ const ServiceOrderTable = ({
   currentPage,
   totalPages,
   handleAddServiceOrder,
-  handleViewDispatcherDetails,
   handleViewAllDispatchers,
 }) => {
+  const [companies, setCompanies] = useState([]);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    // Fetch companies and users when the component mounts
+    const fetchCompaniesAndUsers = async () => {
+      try {
+        const fetchedCompanies = await getCompanies();
+        const fetchedUsers = await getItems();
+        setCompanies(fetchedCompanies);
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error("Error fetching companies or users", error);
+      }
+    };
+
+    fetchCompaniesAndUsers();
+  }, []);
+
+  const getCompanyName = (companyId) => {
+    const company = companies.find((c) => c.id === companyId);
+    return company ? company.name : "Unknown";
+  };
+
+  const getUserName = (userId) => {
+    const user = users.find((u) => u.id === userId);
+    return user ? user.username : "Unknown";
+  };
+
   return (
     <div>
       <table className="table">
         <thead>
           <tr>
             <th style={{ textAlign: "center" }}>ID</th>
-            <th style={{ textAlign: "center" }}>Company ID</th>
+            <th style={{ textAlign: "center" }}>Company</th>
+            <th style={{ textAlign: "center" }}>Created By</th>
             <th style={{ textAlign: "center" }}>Status</th>
             <th style={{ textAlign: "center" }}>Progress</th>
             <th style={{ textAlign: "center" }}>Created At</th>
@@ -32,7 +63,12 @@ const ServiceOrderTable = ({
           {currentServiceOrders.map((order) => (
             <tr key={order.id}>
               <td style={{ textAlign: "center" }}>{order.id}</td>
-              <td style={{ textAlign: "center" }}>{order.companyId}</td>
+              <td style={{ textAlign: "center" }}>
+                {getCompanyName(order.companyId)}
+              </td>
+              <td style={{ textAlign: "center" }}>
+                {getUserName(order.username)}
+              </td>
               <td style={{ textAlign: "center" }}>{order.status}</td>
               <td style={{ textAlign: "center" }}>{order.progress}</td>
               <td style={{ textAlign: "center" }}>
@@ -66,7 +102,7 @@ const ServiceOrderTable = ({
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan="7" className="pagination-footer">
+            <td colSpan="8" className="pagination-footer">
               <div className="pagination-content">
                 <button
                   className="pagination-button"
@@ -93,7 +129,7 @@ const ServiceOrderTable = ({
 
       <div className="add-item-form">
         <button className="add-button" onClick={handleAddServiceOrder}>
-          + Add Service Order
+          + Add
         </button>
       </div>
     </div>

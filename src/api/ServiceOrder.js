@@ -2,7 +2,7 @@ import axiosInstance from "./axiosInstance";
 
 export const getServiceOrders = async () => {
   try {
-    const response = await axiosInstance.get("/ServiceOrders");
+    const response = await axiosInstance.get("/ServiceOrder");
     return response.data;
   } catch (error) {
     console.error("Error fetching Service Orders:", error);
@@ -12,7 +12,7 @@ export const getServiceOrders = async () => {
 
 export const addServiceOrder = async (ServiceOrder) => {
   try {
-    const response = await axiosInstance.post("/ServiceOrders", ServiceOrder);
+    const response = await axiosInstance.post("/ServiceOrder", ServiceOrder);
     return response.data;
   } catch (error) {
     console.error("Error adding Service Order:", error);

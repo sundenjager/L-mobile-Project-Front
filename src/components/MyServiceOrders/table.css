@@ -249,6 +249,10 @@ table td:hover {
   margin-right: 4px; 
 }
 
+.form-container{
+  margin-bottom: 100px;
+}
+
 .add-button{
   background-color: rgba(2, 161, 179, 0.878);
   color: rgb(254, 254, 254);

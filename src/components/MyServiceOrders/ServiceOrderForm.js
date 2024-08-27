@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { getCompanies } from "../../api/company";
+import { getArticles } from "../../api/ArticleService";
+import { getItems } from "../../api/User";
+import './table.css';
 
 const ServiceOrderForm = ({
   formState,
@@ -8,149 +12,184 @@ const ServiceOrderForm = ({
   editingOrder,
 }) => {
   const [errors, setErrors] = useState({});
+  const [companies, setCompanies] = useState([]);
+  const [articles, setArticles] = useState([]);
+  const [technicians, setTechnicians] = useState([]);
+  const inputRefs = useRef({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const companiesData = await getCompanies();
+        const articlesData = await getArticles();
+        const techniciansData = await getItems();
+
+        setCompanies(companiesData);
+        setArticles(articlesData);
+        setTechnicians(techniciansData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("Failed to fetch data");
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    // Set default values for hidden fields
+    if (!editingOrder) {
+      handleChange({
+        target: { name: 'status', value: 'New' }
+      });
+      handleChange({
+        target: { name: 'progress', value: 0 }
+      });
+      handleChange({
+        target: { name: 'createdAt', value: new Date().toISOString().split('T')[0] }
+      });
+      handleChange({
+        target: { name: 'updatedAt', value: new Date().toISOString().split('T')[0] }
+      });
+    }
+  }, [editingOrder, handleChange]);
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formState.companyId) newErrors.companyId = "Please fill out this field.";
-    if (!formState.userId) newErrors.userId = "Please fill out this field.";
-    if (!formState.articlesId) newErrors.articlesId = "Please fill out this field.";
-    if (!formState.status) newErrors.status = "Please select a status.";
-    if (!formState.progress) newErrors.progress = "Please select a progress.";
-    if (!formState.createdAt) newErrors.createdAt = "Please select a creation date.";
-    if (!formState.updatedAt) newErrors.updatedAt = "Please select an update date.";
+    if (!formState.companyId) newErrors.companyId = "Please select a company.";
+    if (!formState.userId) newErrors.userId = "Please select a user.";
+    if (!formState.articlesId) newErrors.articlesId = "Please select an article.";
 
     setErrors(newErrors);
+
+    const firstErrorKey = Object.keys(newErrors)[0];
+    if (firstErrorKey && inputRefs.current[firstErrorKey]) {
+      inputRefs.current[firstErrorKey].focus();
+    }
 
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = () => {
     if (validateForm()) {
-      handleSave();
+      const updatedFormState = {
+        ...formState,
+        status: formState.status || 'New',
+        progress: formState.progress || '0',
+        createdAt: formState.createdAt || new Date().toISOString().split('T')[0],
+        updatedAt: formState.updatedAt || new Date().toISOString().split('T')[0],
+      };
+      handleSave(updatedFormState);
     }
   };
+  
 
   return (
     <div className="form-container">
       <form className="mb-3" onSubmit={(e) => e.preventDefault()}>
         <h3>{editingOrder ? "Edit Service Order" : "Add Service Order"}</h3>
 
+        {Object.keys(errors).length > 0 && (
+          <div className="alert alert-danger" role="alert">
+            Please correct the errors below and try again.
+          </div>
+        )}
+
         <div className="mb-3">
-          <label htmlFor="companyId" className="form-label">Company ID</label>
-          <input
-            type="text"
+          <label htmlFor="companyId" className="form-label">Company</label>
+          <select
             className={`my-input ${errors.companyId ? "is-invalid" : ""}`}
             id="companyId"
             name="companyId"
             value={formState.companyId}
             onChange={handleChange}
-            placeholder="Enter company ID"
             required
-          />
+            ref={(el) => inputRefs.current.companyId = el}
+          >
+            <option value="">Select a company</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
           {errors.companyId && <div className="error-message">{errors.companyId}</div>}
         </div>
 
         <div className="mb-3">
-          <label htmlFor="userId" className="form-label">User ID</label>
-          <input
-            type="text"
+          <label htmlFor="userId" className="form-label">Created by</label>
+          <select
             className={`my-input ${errors.userId ? "is-invalid" : ""}`}
             id="userId"
             name="userId"
             value={formState.userId}
             onChange={handleChange}
-            placeholder="Enter user ID"
             required
-          />
+            ref={(el) => inputRefs.current.userId = el}
+          >
+            <option value="">Select</option>
+            {technicians.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.userName}
+              </option>
+            ))}
+          </select>
           {errors.userId && <div className="error-message">{errors.userId}</div>}
         </div>
 
         <div className="mb-3">
-          <label htmlFor="articlesId" className="form-label">Articles ID</label>
-          <input
-            type="text"
+          <label htmlFor="articlesId" className="form-label">Article</label>
+          <select
             className={`my-input ${errors.articlesId ? "is-invalid" : ""}`}
             id="articlesId"
             name="articlesId"
             value={formState.articlesId}
             onChange={handleChange}
-            placeholder="Enter articles ID"
             required
-          />
+            ref={(el) => inputRefs.current.articlesId = el}
+          >
+            <option value="">Select an article</option>
+            {articles.map((article) => (
+              <option key={article.id} value={article.id}>
+                {article.categorie}
+              </option>
+            ))}
+          </select>
           {errors.articlesId && <div className="error-message">{errors.articlesId}</div>}
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="status" className="form-label">Status</label>
-          <select
-            className={`my-input ${errors.status ? "is-invalid" : ""}`}
-            id="status"
-            name="status"
-            value={formState.status}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select status</option>
-            <option value="New">New</option>
-            <option value="ReadyForScheduling">Ready For Scheduling</option>
-            <option value="Scheduled">Scheduled</option>
-            <option value="InProgress">In Progress</option>
-            <option value="TechnicallyCompleted">Technically Completed</option>
-            <option value="ReadyForInvoice">Ready For Invoice</option>
-            <option value="Invoiced">Invoiced</option>
-            <option value="Completed">Completed</option>
-          </select>
-          {errors.status && <div className="error-message">{errors.status}</div>}
-        </div>
-
-        <div className="mb-3">
-          <input
-            type="hidden"
-            className={`my-input ${errors.progress ? "is-invalid" : ""}`}
-            id="progress"
-            name="progress"
-            value="0"
-            onChange={handleChange}
-            placeholder="Enter progress percentage"
-            required
-          />
-          {errors.progress && <div className="error-message">{errors.progress}</div>}
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="createdAt" className="form-label">Created At</label>
-          <input
-            type="date"
-            className={`my-input ${errors.createdAt ? "is-invalid" : ""}`}
-            id="createdAt"
-            name="createdAt"
-            value={formState.createdAt}
-            onChange={handleChange}
-            required
-          />
-          {errors.createdAt && <div className="error-message">{errors.createdAt}</div>}
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="updatedAt" className="form-label">Updated At</label>
-          <input
-            type="date"
-            className={`my-input ${errors.updatedAt ? "is-invalid" : ""}`}
-            id="updatedAt"
-            name="updatedAt"
-            value={formState.updatedAt}
-            onChange={handleChange}
-            required
-          />
-          {errors.updatedAt && <div className="error-message">{errors.updatedAt}</div>}
-        </div>
+        {/* Hidden fields */}
+        <input
+          type="hidden"
+          name="status"
+          value={formState.status || 'New'}
+          ref={(el) => inputRefs.current.status = el}
+        />
+        <input
+          type="hidden"
+          name="progress"
+          value={formState.progress || 0}
+          ref={(el) => inputRefs.current.progress = el}
+        />
+        <input
+          type="hidden"
+          name="createdAt"
+          value={formState.createdAt || new Date().toISOString().split('T')[0]}
+          ref={(el) => inputRefs.current.createdAt = el}
+        />
+        <input
+          type="hidden"
+          name="updatedAt"
+          value={formState.updatedAt || new Date().toISOString().split('T')[0]}
+          ref={(el) => inputRefs.current.updatedAt = el}
+        />
 
         <div className="my-buttons">
-          <button type="button" className="my-add-button" onClick={handleSubmit}>
+          <button type="button" className="add-button" onClick={handleSubmit}>
             <i className="fas fa-save"></i> Save
           </button>
-          <button type="button" className="my-add-button my-cancel-button" onClick={handleCancel}>
+          <button type="button" className="add-button cancel-button" onClick={handleCancel}>
             <i className="fas fa-times"></i> Cancel
           </button>
         </div>
