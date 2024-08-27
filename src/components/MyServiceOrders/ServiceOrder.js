@@ -1,4 +1,4 @@
-// src/components/MyServiceOrder/MyServiceOrder.js
+// src/components/MyServiceOrder/ServiceOrder.js
 import React, { useState, useEffect } from "react";
 import ServiceOrderTable from "./ServiceOrderTable";
 import Header from "../MyHeader/Header";
@@ -12,7 +12,7 @@ const ServiceOrder = () => {
   const [formState, setFormState] = useState({
     companyId: "",
     userId: "",
-    articlesId: "",
+    articleIds: [],
     status: "New",
     progress: "0",
     createdAt: new Date().toISOString(),
@@ -51,11 +51,34 @@ const ServiceOrder = () => {
   } = useNavigation(serviceOrders);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    const { name, value, type, multiple } = e.target;
+    
+    if (type === 'select-multiple' && name === 'articleIds') {
+      // Handle multi-select input
+      const options = e.target.options;
+      const selectedValues = [];
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].selected) {
+          selectedValues.push(parseInt(options[i].value, 10));
+        }
+      }
+      setFormState((prevState) => ({
+        ...prevState,
+        articleIds: selectedValues,
+      }));
+    } else if (type === 'checkbox') {
+      // Handle checkbox input
+      setFormState((prevState) => ({
+        ...prevState,
+        [name]: e.target.checked,
+      }));
+    } else {
+      // Handle other inputs
+      setFormState((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
 
   const handleDeleteDispatcher = async (id) => {
@@ -97,7 +120,7 @@ const ServiceOrder = () => {
     setFormState({
       companyId: "",
       userId: "",
-      articlesId: "",
+      articleIds: [],
       status: "New",
       progress: "0",
       createdAt: new Date().toISOString(),
