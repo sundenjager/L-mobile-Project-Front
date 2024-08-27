@@ -8,6 +8,15 @@ import useNavigation from "./NavigationService";
 
 const ServiceOrder = () => {
   const [serviceOrders, setServiceOrders] = useState([]);
+  const [formState, setFormState] = useState({
+    companyId: "",
+    userId: "",
+    articlesId: "",
+    status: "",
+    progress: "0",
+    createdAt: "",
+    updatedAt: "",
+  });
 
   useEffect(() => {
     const fetchServiceOrders = async () => {
@@ -92,20 +101,38 @@ const ServiceOrder = () => {
     handleViewAllDispatchers,
     showTable,
     showForm,
-
     backToTable,
     headerTitle,
   } = useNavigation(serviceOrders);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
   const handleDelete = async (id) => {
+    // Implement delete logic here
     alert("Service order deleted successfully");
   };
 
   const handleAddServiceOrder = () => {
+    setFormState({
+      companyId: "",
+      userId: "",
+      articlesId: "",
+      status: "",
+      progress: "0",
+      createdAt: "",
+      updatedAt: "",
+    });
     showForm();
   };
 
   const handleFormSave = () => {
+    // Implement save logic here
     showTable();
   };
 
@@ -116,7 +143,6 @@ const ServiceOrder = () => {
   return (
     <div className="page-content">
       <Header />
-      <h1> ali bich ye5dim il service order rodbalik tebadal il navigation </h1>
       <h1>{headerTitle}</h1>
       {isTableVisible &&
         !isFormVisible &&
@@ -137,7 +163,13 @@ const ServiceOrder = () => {
           />
         )}
       {isFormVisible && (
-        <ServiceOrderForm onSave={handleFormSave} onCancel={handleCancelForm} />
+        <ServiceOrderForm
+          formState={formState}
+          handleChange={handleChange}
+          handleSave={handleFormSave}
+          handleCancel={handleCancelForm}
+          editingOrder={formState.id !== undefined}
+        />
       )}
       {selectedDispatcher && (
         <DispatcherDetails
@@ -162,10 +194,6 @@ const ServiceOrder = () => {
           </button>
         </div>
       )}
-      <h1>
-        {" "}
-        (form + tableau + design + req déja existant fil back) à implémenter{" "}
-      </h1>
     </div>
   );
 };
