@@ -4,7 +4,7 @@ import Appn from "../dashboard/Appn";
 import People from "../People/People";
 import User from "../MyUser/User.js";
 import Company from "../MyCompany/company";
-import ServiceOrder from "../MyServiceOrder/ServiceOrder.js";
+import ServiceOrder from "../MyServiceOrders/ServiceOrder.js";
 
 const MainContainer = ({ content, onChangePage }) => {
   const renderContent = () => {
