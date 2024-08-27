@@ -60,6 +60,10 @@ const People = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
@@ -153,7 +157,9 @@ const People = () => {
 
   const handleCompanyChange = (e) => {
     const selectedCompanyId = e.target.value;
-    const selectedCompany = companies.find(company => company.id === selectedCompanyId);
+    const selectedCompany = companies.find(
+      (company) => company.id === selectedCompanyId
+    );
     setFormState({
       ...formState,
       companyId: selectedCompanyId,
@@ -215,24 +221,45 @@ const People = () => {
             <tfoot>
               <tr>
                 <td colSpan="5" className="pagination-footer">
-                  <div className="pagination-content">
-                    <button
-                      className="pagination-button"
-                      onClick={handlePreviousPage}
-                      disabled={currentPage === 1}
-                    >
-                      <i className="fas fa-chevron-left"></i> Previous
-                    </button>
-                    <span>
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                      className="pagination-button"
-                      onClick={handleNextPage}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next <i className="fas fa-chevron-right"></i>
-                    </button>
+                  <div className="pagination_rounded">
+                    <ul>
+                      <li>
+                        <button
+                          className="prev"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
+                          <i
+                            className="fa fa-angle-left"
+                            aria-hidden="true"
+                          ></i>{" "}
+                          Prev
+                        </button>
+                      </li>
+                      {[...Array(totalPages).keys()].map((page) => (
+                        <li key={page} className="hidden-xs">
+                          <button
+                            onClick={() => handlePageChange(page + 1)}
+                            className={currentPage === page + 1 ? "active" : ""}
+                          >
+                            {page + 1}
+                          </button>
+                        </li>
+                      ))}
+                      <li>
+                        <button
+                          className="next"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
+                          Next{" "}
+                          <i
+                            className="fa fa-angle-right"
+                            aria-hidden="true"
+                          ></i>
+                        </button>
+                      </li>
+                    </ul>
                   </div>
                 </td>
               </tr>
@@ -259,7 +286,9 @@ const People = () => {
           <form className="mb-3" onSubmit={(e) => e.preventDefault()}>
             {formState.id && (
               <div className="mb-3">
-                <label htmlFor="id" className="form-label">ID</label>
+                <label htmlFor="id" className="form-label">
+                  ID
+                </label>
                 <input
                   type="text"
                   className="form-control"
@@ -271,7 +300,9 @@ const People = () => {
               </div>
             )}
             <div className="mb-3">
-              <label htmlFor="name" className="form-label">Name <font color="red">*</font></label>
+              <label htmlFor="name" className="form-label">
+                Name <font color="red">*</font>
+              </label>
               <input
                 type="text"
                 className={`my-input ${errors.name ? "is-invalid" : ""}`}
@@ -282,10 +313,14 @@ const People = () => {
                 placeholder="Enter name"
                 required
               />
-              {errors.name && <div className="error-message">{errors.name}</div>}
+              {errors.name && (
+                <div className="error-message">{errors.name}</div>
+              )}
             </div>
             <div className="mb-3">
-              <label htmlFor="companyId" className="form-label">Company <font color="red">*</font></label>
+              <label htmlFor="companyId" className="form-label">
+                Company <font color="red">*</font>
+              </label>
               <select
                 id="companyId"
                 name="companyId"
@@ -295,13 +330,15 @@ const People = () => {
                 required
               >
                 <option value="">Select a company</option>
-                {companies.map(company => (
+                {companies.map((company) => (
                   <option key={company.id} value={company.id}>
                     {company.name}
                   </option>
                 ))}
               </select>
-              {errors.companyId && <div className="error-message">{errors.companyId}</div>}
+              {errors.companyId && (
+                <div className="error-message">{errors.companyId}</div>
+              )}
             </div>
 
             <input
@@ -311,14 +348,23 @@ const People = () => {
             />
 
             <div className="my-buttons">
-              <button type="button" className="my-add-button" onClick={handleSave}>
+              <button
+                type="button"
+                className="my-add-button"
+                onClick={handleSave}
+              >
                 Save
               </button>
-              <button type="button" className="my-add-button my-cancel-button" onClick={handleCancel}>
+              <button
+                type="button"
+                className="my-add-button my-cancel-button"
+                onClick={handleCancel}
+              >
                 Cancel
               </button>
             </div>
-            <br/><br/>
+            <br />
+            <br />
             <font color="red">*: Required field</font>
           </form>
         </div>
@@ -328,5 +374,3 @@ const People = () => {
 };
 
 export default People;
-
-           
