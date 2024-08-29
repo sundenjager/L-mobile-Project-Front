@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getItems } from "../../api/User"; // Assuming you have an API function to get the user data
 import "./company.css"; // Make sure you have the CSS for the styles
+import Add from "../Myadd/add";
 
 const CompanyTable = ({
   companies,
@@ -114,11 +115,7 @@ const CompanyTable = ({
         </tfoot>
       </table>
 
-      <div className="add-item-button-container">
-        <button className="add-button" onClick={handleAddCompany}>
-          +Add
-        </button>
-      </div>
+      <Add onAdd={handleAddCompany}/>
     </div>
   );
 };

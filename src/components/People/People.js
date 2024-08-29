@@ -9,6 +9,7 @@ import { getCompanies } from "../../api/company";
 import "./people.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Header from "../MyHeader/Header";
+import Add from "../Myadd/add";
 
 const People = () => {
   const [items, setItems] = useState([]);
@@ -266,11 +267,7 @@ const People = () => {
             </tfoot>
           </table>
           
-          <div className="add-item-button-container">
-            <button className="add-button" onClick={handleAddPerson}>
-              +Add
-            </button>
-          </div>
+          <Add onAdd={handleAddPerson} />
         </div>
       )}
 

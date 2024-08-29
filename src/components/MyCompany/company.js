@@ -11,6 +11,7 @@ import "./company.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Header from "../MyHeader/Header";
 
+
 const Company = () => {
   const [companies, setCompanies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);

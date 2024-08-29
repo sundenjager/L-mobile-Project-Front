@@ -33,3 +33,12 @@ export const loginUser = async (loginData) => {
     throw error.response.data || "Login failed";
   }
 };
+
+export const logoutUser = async (logoutData) => {
+  try {
+    const response = await axiosInstance.post("/account/logout", logoutData);
+    return response.data;
+  } catch (error) {
+    throw error.response.data || "Logout failed";
+  }
+};

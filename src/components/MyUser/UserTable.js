@@ -101,7 +101,7 @@ const UserTable = ({
         </tfoot>
       </table>
 
-      <Add />
+      <Add onAdd={handleAddUser} />
     </div>
   );
 };

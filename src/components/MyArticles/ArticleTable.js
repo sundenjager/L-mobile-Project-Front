@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getItems } from "../../api/User";
 import "./table.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import Add from "../Myadd/add";
 
 const ArticleTable = ({
   articles,
@@ -112,12 +113,8 @@ const ArticleTable = ({
           </tr>
         </tfoot>
       </table>
-
-      <div className="add-item-button-container">
-        <button className="add-button" onClick={handleAddArticle}>
-          +Add
-        </button>
-      </div>
+      
+      <Add onAdd={handleAddArticle}/>
     </div>
   );
 };
