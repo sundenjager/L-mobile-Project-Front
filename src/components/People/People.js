@@ -265,7 +265,7 @@ const People = () => {
               </tr>
             </tfoot>
           </table>
-
+          
           <div className="add-item-button-container">
             <button className="add-button" onClick={handleAddPerson}>
               +Add
@@ -324,8 +324,8 @@ const People = () => {
               <select
                 id="companyId"
                 name="companyId"
-                className={`my-input ${errors.companyId ? "is-invalid" : ""}`}
-                value={formState.companyId}
+                className={`my-input ${errors.id ? "is-invalid" : ""}`}
+                value={formState.id}
                 onChange={handleCompanyChange}
                 required
               >
@@ -337,14 +337,14 @@ const People = () => {
                 ))}
               </select>
               {errors.companyId && (
-                <div className="error-message">{errors.companyId}</div>
+                <div className="error-message">{errors.id}</div>
               )}
             </div>
 
             <input
               type="hidden"
               name="companyName"
-              value={formState.companyName}
+              value={formState.name}
             />
 
             <div className="my-buttons">

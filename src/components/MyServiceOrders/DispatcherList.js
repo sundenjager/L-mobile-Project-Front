@@ -1,4 +1,3 @@
-// src/components/MyServiceOrder/DispatcherList.js
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -9,48 +8,37 @@ const DispatcherList = ({ dispatchers, onBack, onEdit, onDelete, onAdd }) => {
         <button className="btn btn-secondary" onClick={onBack}>
           Back to Orders
         </button>
-        <button className="btn btn-primary" onClick={onAdd}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onAdd(dispatchers[0]?.serviceOrderId)} // Pass serviceOrderId to the onAdd function
+        >
           Add Dispatcher
         </button>
       </div>
 
       <div className="row">
         {dispatchers.map((dispatcher) => (
-          <div key={dispatcher.id} className="col-md-4 mb-4">
-            <div className="card text-center">
-              <div className="card-header">Dispatcher ID: {dispatcher.id}</div>
+          <div key={dispatcher.id} className="col-md-6 mb-3">
+            <div className="card">
               <div className="card-body">
-                <h5 className="card-title">Message: {dispatcher.message}</h5>
+                <h5 className="card-title">{dispatcher.technicianName}</h5>
                 <p className="card-text">
-                  Dispatch Date:{" "}
-                  {new Date(dispatcher.dispatchDate).toLocaleString()}
+                  <strong>Date:</strong> {dispatcher.dispatchDate}
+                  <br />
+                  <strong>Message:</strong> {dispatcher.message}
                 </p>
-
-                <h6>Technicians:</h6>
-                <ul className="list-group list-group-flush">
-                  {dispatcher.techniciansIds.map((techId, index) => (
-                    <li key={index} className="list-group-item">
-                      {techId}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-3">
-                  <button
-                    className="btn btn-warning mx-2"
-                    onClick={() => onEdit(dispatcher.id)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-danger mx-2"
-                    onClick={() => onDelete(dispatcher.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-              <div className="card-footer text-muted">
-                {new Date(dispatcher.dispatchDate).toLocaleDateString()}
+                <button
+                  className="btn btn-warning mr-2"
+                  onClick={() => onEdit(dispatcher.id)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => onDelete(dispatcher.id)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>

@@ -1,4 +1,3 @@
-// src/components/ServiceOrder/ServiceOrderTable.js
 import React from "react";
 
 const ServiceOrderTable = ({
@@ -12,14 +11,21 @@ const ServiceOrderTable = ({
   totalPages,
   handleAddServiceOrder,
   handleViewAllDispatchers,
+  companies, // Add companies as a prop
 }) => {
+  // Helper function to get the company name by ID
+  const getCompanyNameById = (companyId) => {
+    const company = companies.find(company => company.id === companyId);
+    return company ? company.name : "Unknown";
+  };
+
   return (
     <div>
       <table className="table">
         <thead>
           <tr>
             <th style={{ textAlign: "center" }}>ID</th>
-            <th style={{ textAlign: "center" }}>Company ID</th>
+            <th style={{ textAlign: "center" }}>Company Name</th>
             <th style={{ textAlign: "center" }}>Status</th>
             <th style={{ textAlign: "center" }}>Progress</th>
             <th style={{ textAlign: "center" }}>Created At</th>
@@ -31,7 +37,7 @@ const ServiceOrderTable = ({
           {currentServiceOrders.map((order) => (
             <tr key={order.id}>
               <td style={{ textAlign: "center" }}>{order.id}</td>
-              <td style={{ textAlign: "center" }}>{order.companyId}</td>
+              <td style={{ textAlign: "center" }}>{getCompanyNameById(order.companyId)}</td>
               <td style={{ textAlign: "center" }}>{order.status}</td>
               <td style={{ textAlign: "center" }}>{order.progress}</td>
               <td style={{ textAlign: "center" }}>

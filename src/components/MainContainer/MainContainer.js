@@ -5,6 +5,7 @@ import People from "../People/People";
 import User from "../MyUser/User.js";
 import Company from "../MyCompany/company";
 import ServiceOrder from "../MyServiceOrders/ServiceOrder";
+import MainServiceOrder from "../MyNavServiceOrders/MainServiceOrder.js";
 
 const MainContainer = ({ content, onChangePage }) => {
   const renderContent = () => {
@@ -21,6 +22,8 @@ const MainContainer = ({ content, onChangePage }) => {
         return <User/>;
       case "Service Orders":
         return <ServiceOrder/>;
+        case "Service Orders 2":
+          return <MainServiceOrder/>;
       default:
         return <Appn onChangePage={onChangePage} />;
     }

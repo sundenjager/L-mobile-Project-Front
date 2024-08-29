@@ -42,6 +42,9 @@ const Sidebar = ({ onSelect, onToggle }) => {
         <li onClick={() => onSelect("Service Orders")}>
           <i className="fas fa-tasks"></i> <span className="text">Service Orders</span>
         </li> 
+        <li onClick={() => onSelect("Service Orders 2")}>
+          <i className="fas fa-tasks"></i> <span className="text">Service Orders 2 </span>
+        </li> 
       </ul>
       <LogoutButton className="signout-btn"/>
     </aside>
